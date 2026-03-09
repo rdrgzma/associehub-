@@ -205,6 +205,15 @@ class ManagerController extends Controller {
         }
     }
 
+    public function deletarMembro($id) {
+        $this->checkAccess($id);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $associadoModel = new Associado();
+            $associadoModel->delete($id);
+            $this->redirect('/manager/dashboard');
+        }
+    }
+
     private function checkAccess($memberId) {
         // The admin can also see this, so let's check if the user is admin OR manager
         $isAdmin = isset($_SESSION['admin_id']);

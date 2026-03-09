@@ -179,4 +179,18 @@ class AdminController extends Controller {
             $this->redirect('/manager/membros/' . $id);
         }
     }
+
+    public function deletarMembro($id) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $associadoModel = new Associado();
+            $membro = $associadoModel->findById($id);
+            if ($membro) {
+                $assocId = $membro['associacao_id'];
+                $associadoModel->delete($id);
+                $this->redirect('/admin/associacoes/' . $assocId . '/membros');
+            } else {
+                $this->redirect('/admin/dashboard');
+            }
+        }
+    }
 }

@@ -25,6 +25,7 @@ $router->post('/admin/associados/{id}/atualizar', ['AdminController', 'atualizar
 $router->post('/admin/associados/{id}/atualizar-status-global', ['AdminController', 'atualizarStatusGlobal']);
 $router->get('/admin/associados/{id}/editar', ['AdminController', 'editarMembro']);
 $router->post('/admin/associados/{id}/editar', ['AdminController', 'salvarMembro']);
+$router->post('/admin/associados/{id}/deletar', ['AdminController', 'deletarMembro']);
 
 // Manager Area routes
 $router->get('/manager/login', ['ManagerController', 'loginForm']);
@@ -37,3 +38,4 @@ $router->post('/manager/membros/{id}/atualizar-status-global', ['ManagerControll
 $router->get('/manager/membros/{id}/ficha', ['ManagerController', 'ficha']);
 $router->get('/manager/membros/{id}/editar', ['ManagerController', 'editarMembro']);
 $router->post('/manager/membros/{id}/editar', ['ManagerController', 'salvarMembro']);
+$router->post('/manager/membros/{id}/deletar', ['ManagerController', 'deletarMembro']);

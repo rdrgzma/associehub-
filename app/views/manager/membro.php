@@ -20,10 +20,12 @@
                         $editUrl = "/admin/associados/{$membro_id}/editar";
                         $postUrl = "/admin/associados/{$membro_id}/atualizar-status-global";
                         $postDocUrl = "/admin/associados/{$membro_id}/atualizar";
+                        $deleteUrl = "/admin/associados/{$membro_id}/deletar";
                     } else {
                         $editUrl = "/manager/membros/{$membro_id}/editar";
                         $postUrl = "/manager/membros/{$membro_id}/atualizar-status-global";
                         $postDocUrl = "/manager/membros/{$membro_id}/atualizar";
+                        $deleteUrl = "/manager/membros/{$membro_id}/deletar";
                     }
                 ?>
                 <div class="ml-auto flex space-x-3">
@@ -35,6 +37,10 @@
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                         Imprimir Ficha
                     </a>
+                    <button onclick="toggleDeleteModal(true)" class="bg-white border border-red-200 hover:bg-red-50 text-red-600 font-medium py-1.5 px-4 rounded-lg text-sm flex items-center shadow-sm transition">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        Excluir
+                    </button>
                 </div>
             </div>
         </div>
@@ -305,8 +311,53 @@
             </form>
         </div>
     </main>
-</body>
-</html>
-    </main>
+
+    <!-- Modal de Exclusão -->
+    <div id="deleteModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="toggleDeleteModal(false)"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-red-100">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">Excluir Associado</h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500">
+                                    Esta ação é <span class="font-bold text-red-600">irreversível</span>. Ao confirmar, todos os dados de <span class="font-bold"><?= htmlspecialchars($membro['nome']) ?></span> e seus documentos anexados serão removidos permanentemente do servidor.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3">
+                    <form action="<?= $deleteUrl ?>" method="POST">
+                        <button type="submit" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-bold text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:text-sm">
+                            Confirmar Exclusão
+                        </button>
+                    </form>
+                    <button type="button" onclick="toggleDeleteModal(false)" class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:text-sm">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDeleteModal(show) {
+            const modal = document.getElementById('deleteModal');
+            if (show) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } else {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        }
+    </script>
 </body>
 </html>

@@ -175,4 +175,30 @@ class Associado extends Model {
         $stmt = $this->db->prepare($sql);
         return $stmt->execute($params);
     }
+
+    public function delete($id) {
+        // 1. Get member data to find file paths
+        $membro = $this->findById($id);
+        if (!$membro) return false;
+
+        // 2. Unlink files if they exist
+        $docFields = [
+            'doc_identidade', 'doc_quitacao_eleitoral', 'doc_fiscal_federal',
+            'doc_fiscal_estadual', 'doc_fiscal_municipal', 'doc_situacao_cpf'
+        ];
+
+        $uploadBasePath = __DIR__ . '/../../public';
+        foreach ($docFields as $field) {
+            if (!empty($membro[$field])) {
+                $filePath = $uploadBasePath . $membro[$field];
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+        }
+
+        // 3. Delete from database
+        $stmt = $this->db->prepare("DELETE FROM associados WHERE id = :id");
+        return $stmt->execute(['id' => $id]);
+    }
 }
