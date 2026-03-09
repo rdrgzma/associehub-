@@ -2,8 +2,28 @@
 
 <div class="mb-6 flex justify-between items-end">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <h1 class="text-2xl font-bold text-gray-900">Dashboard Geral</h1>
         <p class="text-sm text-gray-500 mt-1">Bem-vindo, <?= htmlspecialchars($_SESSION['admin_nome'] ?? 'Administrador') ?></p>
+    </div>
+</div>
+
+<!-- KPI Metrics -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col justify-center">
+        <dt class="text-sm font-medium text-gray-500 mb-1">Total de Associações</dt>
+        <dd class="text-3xl font-bold text-indigo-700"><?= $metrics['total_associacoes'] ?></dd>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col justify-center">
+        <dt class="text-sm font-medium text-gray-500 mb-1">Associações Pendentes</dt>
+        <dd class="text-3xl font-bold text-amber-600"><?= $metrics['total_pendentes'] ?></dd>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col justify-center">
+        <dt class="text-sm font-medium text-gray-500 mb-1">Total de Associados</dt>
+        <dd class="text-3xl font-bold text-blue-600"><?= $metrics['total_membros'] ?></dd>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col justify-center">
+        <dt class="text-sm font-medium text-gray-500 mb-1">Associados Ativos</dt>
+        <dd class="text-3xl font-bold text-emerald-600"><?= $metrics['membros_ativos'] ?></dd>
     </div>
 </div>
 

@@ -20,7 +20,7 @@
                         <th class="py-3 px-6 font-medium">Associação</th>
                         <th class="py-3 px-6 font-medium">Responsável</th>
                         <th class="py-3 px-6 font-medium">Status</th>
-                        <th class="py-3 px-6 font-medium">Link de Cadastro</th>
+                        <th class="py-3 px-6 font-medium">Link de Cadastro & Senha</th>
                         <th class="py-3 px-6 font-medium text-right">Ações</th>
                     </tr>
                 </thead>
@@ -51,11 +51,17 @@
                                 <?php 
                                     $link = "http://" . $_SERVER['HTTP_HOST'] . "/cadastro/" . $assoc['token']; 
                                 ?>
-                                <div class="flex items-center space-x-2">
-                                    <input type="text" readonly value="<?= $link ?>" class="text-xs bg-gray-50 border border-gray-200 rounded px-2 py-1 w-48 text-gray-500 outline-none">
-                                    <button type="button" onclick="navigator.clipboard.writeText('<?= $link ?>'); alert('Link copiado!')" class="text-indigo-600 hover:text-indigo-800" title="Copiar Link">
-                                        Copiar
-                                    </button>
+                                <div class="flex flex-col space-y-2">
+                                    <div class="flex items-center space-x-2">
+                                        <input type="text" readonly value="<?= $link ?>" class="text-xs bg-gray-50 border border-gray-200 rounded px-2 py-1 w-48 text-gray-500 outline-none">
+                                        <button type="button" onclick="navigator.clipboard.writeText('<?= $link ?>'); alert('Link copiado!')" class="text-indigo-600 hover:text-indigo-800 text-xs font-semibold" title="Copiar Link">
+                                            Copiar Link
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-gray-600 font-medium whitespace-nowrap">Senha Manager:</span>
+                                        <input type="text" readonly value="<?= htmlspecialchars($assoc['acesso_senha']) ?>" class="text-xs bg-gray-50 border border-gray-200 rounded px-2 py-1 w-24 text-gray-800 font-mono outline-none font-bold">
+                                    </div>
                                 </div>
                             <?php else: ?>
                                 <span class="text-gray-400 text-xs italic">-</span>

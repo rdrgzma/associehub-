@@ -1,81 +1,100 @@
 <?php
 
-class AdminController extends Controller {
+class ManagerController extends Controller {
     public function __construct() {
-        if (!isset($_SESSION['admin_id'])) {
-            $this->redirect('/admin/login');
+        // Start session if not already started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
         }
+    }
+
+    public function loginForm() {
+        if (isset($_SESSION['manager_id'])) {
+            $this->redirect('/manager/dashboard');
+        }
+        $this->view('manager/login');
+    }
+
+    public function login() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $cnpj = $_POST['cnpj'] ?? '';
+            $senha = $_POST['senha'] ?? '';
+
+            $associacaoModel = new Associacao();
+            $manager = $associacaoModel->login($cnpj, $senha);
+
+            if ($manager) {
+                $_SESSION['manager_id'] = $manager['id'];
+                $_SESSION['manager_nome'] = $manager['nome'];
+                $this->redirect('/manager/dashboard');
+            } else {
+                $this->view('manager/login', ['error' => 'CNPJ ou Senha inválidos.']);
+            }
+        }
+    }
+
+    public function logout() {
+        unset($_SESSION['manager_id']);
+        unset($_SESSION['manager_nome']);
+        $this->redirect('/manager/login');
     }
 
     public function dashboard() {
+        if (!isset($_SESSION['manager_id'])) {
+            $this->redirect('/manager/login');
+        }
+
+        $associacaoId = $_SESSION['manager_id'];
         $associacaoModel = new Associacao();
         $associadoModel = new Associado();
-        
-        $pending = $associacaoModel->getPending();
-        $all = $associacaoModel->getAll();
-        
-        foreach ($all as &$assoc) {
-            $assoc['total_membros'] = $associadoModel->getTotalByAssociacao($assoc['id']);
-        }
-        
-        // Fetch global metrics
+        $membros = $associadoModel->getByAssociacaoId($associacaoId);
+
+        // Fetch association specific metrics
         $metrics = [
-            'total_associacoes' => $associacaoModel->getTotalCount(),
-            'total_pendentes' => $associacaoModel->getPendingCount(),
-            'total_membros' => $associadoModel->getTotalCount(),
-            'membros_ativos' => $associadoModel->getTotalActiveCount()
+            'total_membros' => $associadoModel->getTotalByAssociacao($associacaoId),
+            'membros_ativos' => $associadoModel->getTotalActiveByAssociacao($associacaoId),
+            'membros_inativos' => $associadoModel->getTotalInactiveByAssociacao($associacaoId)
         ];
-        
-        $this->view('admin/dashboard', [
-            'pending' => $pending,
-            'associacoes' => $all,
-            'metrics' => $metrics
-        ]);
-    }
 
-    public function associacoes() {
-        $associacaoModel = new Associacao();
-        $associacoes = $associacaoModel->getAll();
-        $this->view('admin/associacoes', ['associacoes' => $associacoes]);
-    }
-
-    public function aprovar($id) {
-        $associacaoModel = new Associacao();
-        $associacaoModel->approve($id);
-        $this->redirect('/admin/dashboard');
-    }
-
-    public function rejeitar($id) {
-        $associacaoModel = new Associacao();
-        $associacaoModel->reject($id);
-        $this->redirect('/admin/dashboard');
-    }
-
-    public function membros($id) {
-        $associacaoModel = new Associacao();
-        $associadoModel = new Associado();
+        $associacao = $associacaoModel->findById($associacaoId);
         
-        $associacao = $associacaoModel->findById($id);
-        if (!$associacao) {
-            $this->redirect('/admin/dashboard');
-        }
-        
-        $membros = $associadoModel->getByAssociacaoId($id);
-        
-        $metrics = [
-            'total_membros' => $associadoModel->getTotalByAssociacao($id),
-            'membros_ativos' => $associadoModel->getTotalActiveByAssociacao($id),
-            'membros_inativos' => $associadoModel->getTotalInactiveByAssociacao($id)
-        ];
-        
-        $this->view('admin/membros', [
-            'associacao' => $associacao,
+        $this->view('manager/dashboard', [
             'membros' => $membros,
+            'associacao_nome' => $_SESSION['manager_nome'],
+            'associacao' => $associacao,
             'metrics' => $metrics
         ]);
+    }
+
+    public function membro($id) {
+        $this->checkAccess($id);
+        
+        $associadoModel = new Associado();
+        $membro = $associadoModel->findById($id);
+
+        if (!$membro) {
+            $this->redirect('/manager/dashboard');
+        }
+
+        $this->view('manager/membro', ['membro' => $membro]);
+    }
+
+    public function ficha($id) {
+        $this->checkAccess($id);
+
+        $associadoModel = new Associado();
+        $membro = $associadoModel->findById($id);
+
+        if (!$membro) {
+            die("Membro não encontrado");
+        }
+
+        $this->view('manager/ficha', ['membro' => $membro]);
     }
 
     public function atualizarMembro($id) {
+        $this->checkAccess($id);
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $updates = [];
             $docs = [
@@ -96,6 +115,8 @@ class AdminController extends Controller {
     }
 
     public function atualizarStatusGlobal($id) {
+        $this->checkAccess($id);
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $situacao = isset($_POST['situacao']) ? 1 : 0;
             $validade = !empty($_POST['validade']) ? $_POST['validade'] : null;
@@ -108,17 +129,21 @@ class AdminController extends Controller {
     }
 
     public function editarMembro($id) {
+        $this->checkAccess($id);
+        
         $associadoModel = new Associado();
         $membro = $associadoModel->findById($id);
 
         if (!$membro) {
-            $this->redirect('/admin/dashboard');
+            $this->redirect('/manager/dashboard');
         }
 
         $this->view('manager/editar', ['membro' => $membro]);
     }
 
     public function salvarMembro($id) {
+        $this->checkAccess($id);
+        
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
                 'nome' => $_POST['nome'] ?? null,
@@ -169,7 +194,7 @@ class AdminController extends Controller {
                         $data[$doc] = '/uploads/docs/' . $filename;
                     }
                 } else {
-                    $data[$doc] = null; // null means "don't update this field"
+                    $data[$doc] = null; // null means "don't update this field" in our updateDataAndFiles method
                 }
             }
 
@@ -177,6 +202,25 @@ class AdminController extends Controller {
             $associadoModel->updateDataAndFiles($id, $data);
 
             $this->redirect('/manager/membros/' . $id);
+        }
+    }
+
+    private function checkAccess($memberId) {
+        // The admin can also see this, so let's check if the user is admin OR manager
+        $isAdmin = isset($_SESSION['admin_id']);
+        $isManager = isset($_SESSION['manager_id']);
+
+        if (!$isAdmin && !$isManager) {
+            $this->redirect('/manager/login');
+        }
+
+        if ($isManager && !$isAdmin) {
+            // Check if the member belongs to the manager's association
+            $associadoModel = new Associado();
+            $membro = $associadoModel->findById($memberId);
+            if (!$membro || $membro['associacao_id'] != $_SESSION['manager_id']) {
+                $this->redirect('/manager/dashboard');
+            }
         }
     }
 }

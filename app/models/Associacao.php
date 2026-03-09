@@ -24,6 +24,18 @@ class Associacao extends Model {
         return $stmt->fetchAll();
     }
 
+    public function getTotalCount() {
+        $stmt = $this->db->query("SELECT COUNT(*) as total FROM associacoes");
+        $row = $stmt->fetch();
+        return $row ? $row['total'] : 0;
+    }
+
+    public function getPendingCount() {
+        $stmt = $this->db->query("SELECT COUNT(*) as total FROM associacoes WHERE status = 'pending'");
+        $row = $stmt->fetch();
+        return $row ? $row['total'] : 0;
+    }
+
     public function findById($id) {
         $stmt = $this->db->prepare("SELECT * FROM associacoes WHERE id = :id");
         $stmt->execute(['id' => $id]);
@@ -42,9 +54,17 @@ class Associacao extends Model {
             return true;
         }
         $token = bin2hex(random_bytes(16));
-        $sql = "UPDATE associacoes SET status = 'approved', token = :token WHERE id = :id";
+        $senha = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 8);
+        $sql = "UPDATE associacoes SET status = 'approved', token = :token, acesso_senha = :senha WHERE id = :id";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute(['token' => $token, 'id' => $id]);
+        return $stmt->execute(['token' => $token, 'senha' => $senha, 'id' => $id]);
+    }
+
+    public function login($cnpj, $senha) {
+        $sql = "SELECT * FROM associacoes WHERE cnpj = :cnpj AND acesso_senha = :senha AND status = 'approved'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['cnpj' => $cnpj, 'senha' => $senha]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function reject($id) {

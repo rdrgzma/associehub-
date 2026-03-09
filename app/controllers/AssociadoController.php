@@ -28,8 +28,32 @@ class AssociadoController extends Controller {
                 'email' => $_POST['email'] ?? '',
                 'telefone' => $_POST['telefone'] ?? '',
                 'endereco' => $_POST['endereco'] ?? '',
+                'numero' => $_POST['numero'] ?? '',
+                'complemento' => $_POST['complemento'] ?? '',
+                'bairro' => $_POST['bairro'] ?? '',
+                'cep' => $_POST['cep'] ?? '',
                 'cidade' => $_POST['cidade'] ?? '',
-                'estado' => $_POST['estado'] ?? ''
+                'estado' => $_POST['estado'] ?? '',
+                'nacionalidade' => $_POST['nacionalidade'] ?? '',
+                'naturalidade' => $_POST['naturalidade'] ?? '',
+                'data_nascimento' => $_POST['data_nascimento'] ?? '',
+                'idade' => $_POST['idade'] ?? '',
+                'rg' => $_POST['rg'] ?? '',
+                'rg_orgao_emissor' => $_POST['rg_orgao_emissor'] ?? '',
+                'filiacao_1_nome' => $_POST['filiacao_1_nome'] ?? '',
+                'filiacao_1_cpf' => $_POST['filiacao_1_cpf'] ?? '',
+                'filiacao_2_nome' => $_POST['filiacao_2_nome'] ?? '',
+                'filiacao_2_cpf' => $_POST['filiacao_2_cpf'] ?? '',
+                'estado_civil' => $_POST['estado_civil'] ?? '',
+                'forma_comunhao' => $_POST['forma_comunhao'] ?? '',
+                'conjuge_nome' => $_POST['conjuge_nome'] ?? '',
+                'conjuge_cpf' => $_POST['conjuge_cpf'] ?? '',
+                'profissao_1' => $_POST['profissao_1'] ?? '',
+                'profissao_1_registro' => $_POST['profissao_1_registro'] ?? '',
+                'profissao_1_orgao' => $_POST['profissao_1_orgao'] ?? '',
+                'profissao_2' => $_POST['profissao_2'] ?? '',
+                'profissao_2_registro' => $_POST['profissao_2_registro'] ?? '',
+                'profissao_2_orgao' => $_POST['profissao_2_orgao'] ?? ''
             ];
 
             // Handle file uploads

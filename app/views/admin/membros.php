@@ -10,11 +10,32 @@
     </div>
     <div class="flex space-x-4 items-center">
         <span class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-semibold border border-indigo-200">
-            Total: <?= count($membros) ?>
+            Total na Lista: <?= count($membros) ?>
         </span>
         <a href="/admin/associacoes" class="text-gray-600 hover:text-gray-900 font-medium text-sm border border-gray-300 px-3 py-1.5 rounded-lg">&larr; Voltar</a>
     </div>
 </div>
+
+<!-- KPI Metrics for this Association -->
+<dl class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col justify-center relative overflow-hidden">
+        <div class="absolute right-0 top-0 bottom-0 w-2 bg-indigo-500"></div>
+        <dt class="text-sm font-medium text-gray-500 mb-1">Membros Cadastrados</dt>
+        <dd class="text-3xl font-bold text-gray-900"><?= $metrics['total_membros'] ?></dd>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col justify-center relative overflow-hidden">
+        <div class="absolute right-0 top-0 bottom-0 w-2 bg-emerald-500"></div>
+        <dt class="text-sm font-medium text-gray-500 mb-1">Membros Ativos</dt>
+        <dd class="text-3xl font-bold text-gray-900"><?= $metrics['membros_ativos'] ?></dd>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col justify-center relative overflow-hidden">
+        <div class="absolute right-0 top-0 bottom-0 w-2 bg-red-500"></div>
+        <dt class="text-sm font-medium text-gray-500 mb-1">Membros Inativos/Pendentes</dt>
+        <dd class="text-3xl font-bold text-gray-900"><?= $metrics['membros_inativos'] ?></dd>
+    </div>
+</dl>
 
 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
     <?php if(empty($membros)): ?>
@@ -31,6 +52,7 @@
                         <th class="py-3 px-6 font-medium">Contato</th>
                         <th class="py-3 px-6 font-medium">Endereço</th>
                         <th class="py-3 px-6 font-medium">Registro</th>
+                        <th class="py-3 px-6 font-medium text-right">Ações</th>
                     </tr>
                 </thead>
                 <tbody class="text-sm divide-y divide-gray-100">
@@ -53,7 +75,17 @@
                             </div>
                         </td>
                         <td class="py-3 px-6 text-gray-500 font-medium">
-                            <?= date('d/m/Y', strtotime($membro['created_at'])) ?>
+                            <div><?= date('d/m/Y', strtotime($membro['created_at'])) ?></div>
+                            <div class="mt-1">
+                                <?php if($membro['situacao']): ?>
+                                    <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs font-semibold">Ativo</span>
+                                <?php else: ?>
+                                    <span class="bg-red-100 text-red-800 px-2 py-0.5 rounded text-xs font-semibold">Inativo</span>
+                                <?php endif; ?>
+                            </div>
+                        </td>
+                        <td class="py-3 px-6 text-right">
+                            <a href="/manager/membros/<?= $membro['id'] ?>" class="text-indigo-600 hover:text-indigo-900 font-medium text-sm">Ver Detalhes</a>
                         </td>
                     </tr>
                     <?php endforeach; ?>

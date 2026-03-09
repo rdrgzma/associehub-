@@ -18,16 +18,25 @@
     <header class="bg-indigo-600 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center">
-                <a href="/" class="text-white text-xl font-bold tracking-tight">AssocieHub</a>
-            </div>
-            <nav>
-                <?php if(isset($_SESSION['admin_id'])): ?>
-                    <a href="/admin/dashboard" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md font-medium">Dashboard</a>
-                    <a href="/admin/associacoes" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md font-medium">Associações</a>
-                    <a href="/admin/logout" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md font-medium">Sair</a>
+                <?php if(isset($token) && isset($associacao['nome'])): ?>
+                    <span class="text-white text-xl font-bold tracking-tight"><?= htmlspecialchars($associacao['nome']) ?></span>
                 <?php else: ?>
+                    <a href="/" class="text-white text-xl font-bold tracking-tight">AssocieHub</a>
+                <?php endif; ?>
+            </div>
+            <nav class="flex items-center space-x-2">
+                <?php if(!isset($token)): ?>
                     <a href="/" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md font-medium">Home</a>
-                    <a href="/admin/login" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md font-medium text-sm border border-indigo-400">Admin</a>
+                <?php endif; ?>
+
+                <?php if(isset($_SESSION['admin_id'])): ?>
+                    <a href="/admin/dashboard" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md font-medium border border-indigo-400 bg-indigo-500 text-sm">Painel Admin</a>
+                    <a href="/admin/associacoes" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md font-medium text-sm">Associações</a>
+                    <a href="/admin/logout" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md font-medium text-sm">Sair</a>
+                <?php endif; ?>
+
+                <?php if(isset($_SESSION['manager_id'])): ?>
+                    <a href="/manager/dashboard" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md font-medium border border-indigo-400 bg-indigo-500 text-sm">Painel da Associação</a>
                 <?php endif; ?>
             </nav>
         </div>
