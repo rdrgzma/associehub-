@@ -1,0 +1,9 @@
+Order Allow,Deny
+Deny from all
+<FilesMatch "\.(pdf|jpg|jpeg|png)$">
+    Allow from all
+</FilesMatch>
+# Prevent PHP execution
+php_flag engine off
+AddHandler cgi-script .php .phtml .php3 .php4 .php5 .pl .py .jsp .asp .htm .shtml .sh .cgi
+Options -ExecCGI
