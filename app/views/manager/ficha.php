@@ -160,6 +160,56 @@
         </div>
 
         <div class="section">
+            <div class="section-title">QUALIFICAÇÃO</div>
+            <?php
+            // Monta as variáveis da qualificação dinamicamente
+            $q_nome = htmlspecialchars($membro['nome']);
+            $q_nac = htmlspecialchars($membro['nacionalidade'] ?? 'NÃO INFORMADA');
+            $q_nat = htmlspecialchars($membro['naturalidade'] ?? 'NÃO INFORMADA');
+            $q_est = htmlspecialchars($membro['estado'] ?? '');
+            $q_nasc = !empty($membro['data_nascimento']) ? date('d/m/Y', strtotime($membro['data_nascimento'])) : 'NÃO INFORMADA';
+            
+            $q_pai = trim($membro['filiacao_1_nome'] ?? '');
+            $q_mae = trim($membro['filiacao_2_nome'] ?? '');
+            $q_filiacao = "";
+            if (!empty($q_pai) && !empty($q_mae)) {
+                $q_filiacao = "FILHO DE " . htmlspecialchars($q_pai) . " E " . htmlspecialchars($q_mae);
+            } elseif (!empty($q_mae)) {
+                $q_filiacao = "FILHO DE " . htmlspecialchars($q_mae);
+            } elseif (!empty($q_pai)) {
+                $q_filiacao = "FILHO DE " . htmlspecialchars($q_pai);
+            } else {
+                $q_filiacao = "FILIAÇÃO NÃO INFORMADA";
+            }
+            
+            $q_cpf = htmlspecialchars($membro['cpf']);
+            $q_rg = htmlspecialchars($membro['rg'] ?? '');
+            $q_orgao = htmlspecialchars($membro['rg_orgao_emissor'] ?? '');
+            
+            $q_idade = (int)($membro['idade'] ?? 0);
+            $q_maioridade = ($q_idade >= 18) ? 'MAIOR' : 'MENOR';
+            
+            $q_esciv = htmlspecialchars($membro['estado_civil'] ?? 'NÃO INFORMADO');
+            $q_prof = htmlspecialchars($membro['profissao_1'] ?? 'NÃO INFORMADA');
+            $q_log = htmlspecialchars($membro['endereco'] ?? '');
+            $q_num = htmlspecialchars($membro['numero'] ?? 'S/N');
+            $q_comp = !empty($membro['complemento']) ? " - " . htmlspecialchars($membro['complemento']) : '';
+            $q_bairro = htmlspecialchars($membro['bairro'] ?? '');
+            $q_mun = htmlspecialchars($membro['cidade'] ?? '');
+            $q_cep = htmlspecialchars($membro['cep'] ?? '');
+            
+            // Remove pontuações não-numéricas para ficar limpo depois do +55
+            $q_tel = preg_replace('/\D/', '', $membro['telefone'] ?? '');
+            $q_email = htmlspecialchars($membro['email'] ?? 'NÃO INFORMADO');
+            
+            $q_texto = "$q_nome, $q_nac, NASCIDO NO MUNICIPIO DE $q_nat, ESTADO $q_est, NO DIA $q_nasc, $q_filiacao, CPF NÚMERO $q_cpf, REGISTRO GERAL NÚMERO $q_rg $q_orgao, $q_maioridade, $q_esciv, $q_prof, RESIDENTE E DOMICILIADO $q_log, NÚMERO $q_num$q_comp, BAIRRO $q_bairro, NO MUNICIPIO $q_mun, ESTADO $q_est, CÓDIGO DE ENDEREÇAMENTO POSTAL $q_cep, NÚMERO TELEFÔNICO E DE TELE MENSAGENS +55$q_tel, CORREIO ELETRÔNICO (E-MAIL) $q_email;";
+            ?>
+            <div style="font-size: 14px; line-height: 1.6; text-transform: uppercase; text-align: justify; padding: 0 5px;">
+                <?= $q_texto ?>
+            </div>
+        </div>
+
+        <div class="section">
             <div class="section-title">DADOS PESSOAIS E IDENTIFICAÇÃO</div>
             <div class="data-grid">
                 <div class="data-item full-width">
@@ -222,18 +272,26 @@
                     <div class="data-label">Estado Civil</div>
                     <div class="data-value"><?= htmlspecialchars($membro['estado_civil'] ?? '---') ?></div>
                 </div>
+                <?php 
+                $formaComunhao = $membro['forma_comunhao'] ?? '';
+                $conjugeNome = $membro['conjuge_nome'] ?? '';
+                $exibirConjuge = ($formaComunhao !== 'N/A' && $conjugeNome !== 'N/A');
+                
+                if ($exibirConjuge): 
+                ?>
                 <div class="data-item">
                     <div class="data-label">Regime de Bens</div>
-                    <div class="data-value"><?= htmlspecialchars($membro['forma_comunhao'] ?? '---') ?></div>
+                    <div class="data-value"><?= htmlspecialchars($formaComunhao ? $formaComunhao : '---') ?></div>
                 </div>
                 <div class="data-item">
                     <div class="data-label">Nome do Cônjuge</div>
-                    <div class="data-value"><?= htmlspecialchars($membro['conjuge_nome'] ?? '---') ?></div>
+                    <div class="data-value"><?= htmlspecialchars($conjugeNome ? $conjugeNome : '---') ?></div>
                 </div>
                 <div class="data-item">
                     <div class="data-label">CPF do Cônjuge</div>
                     <div class="data-value"><?= htmlspecialchars($membro['conjuge_cpf'] ?? '---') ?></div>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -330,6 +388,36 @@
             <p style="font-size: 12px; margin-top: 20px; color: #6b7280;">Documento gerado em <?= date('d/m/Y') ?></p>
         </div>
     </div>
+
+    <?php if(!empty($config['pix_chave']) && !empty($config['pix_valor_cadastro'])): ?>
+    <div class="document-container" style="page-break-before: always;">
+        <div class="header" style="margin-bottom: 40px;">
+            <h1 style="color: #059669;">Instruções de Pagamento (PIX)</h1>
+            <p>Efetue a transferência para integralizar o seu registro.</p>
+        </div>
+
+        <div class="section" style="text-align: center; margin-top: 60px; border: none; box-shadow: none;">
+            <div style="font-size: 18px; color: #374151; margin-bottom: 10px;">Valor da Contribuição:</div>
+            <div style="font-size: 48px; font-weight: bold; color: #059669; margin-bottom: 50px;">R$ <?= htmlspecialchars($config['pix_valor_cadastro']) ?></div>
+
+            <div style="font-size: 16px; color: #374151; margin-bottom: 15px;">Chave PIX Oficial (Transfira para):</div>
+            <div style="font-size: 24px; font-weight: bold; background: #ecfdf5; border: 2px dashed #10b981; padding: 20px 40px; border-radius: 12px; display: inline-block; margin-bottom: 30px; letter-spacing: 1px;">
+                <?= htmlspecialchars($config['pix_chave']) ?>
+            </div>
+            
+            <?php if(!empty($config['pix_instrucoes'])): ?>
+            <div style="margin-top: 40px; font-size: 14px; color: #4b5563; background: #f9fafb; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
+                <strong style="display: block; margin-bottom: 8px; color: #1f2937;">Instruções Adicionais da Gestão:</strong>
+                <?= nl2br(htmlspecialchars($config['pix_instrucoes'])) ?>
+            </div>
+            <?php endif; ?>
+            
+            <p style="margin-top: 60px; font-size: 14px; color: #6b7280; font-style: italic;">
+                Lembrete: Envie o comprovante de pagamento à lotérica responsável para autenticação imediata do seu cadastro junto à Associação.
+            </p>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <!-- Auto trigger print dialog when opened -->
     <script>

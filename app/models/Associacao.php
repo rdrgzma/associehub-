@@ -1,7 +1,9 @@
 <?php
 
-class Associacao extends Model {
-    public function create($data) {
+class Associacao extends Model
+{
+    public function create($data)
+    {
         $sql = "INSERT INTO associacoes (nome, cnpj, responsavel, email, telefone, status) 
                 VALUES (:nome, :cnpj, :responsavel, :email, :telefone, 'pending')";
         $stmt = $this->db->prepare($sql);
@@ -14,41 +16,70 @@ class Associacao extends Model {
         ]);
     }
 
-    public function getAll() {
+    public function update($id, $data)
+    {
+        $sql = "UPDATE associacoes SET 
+                    nome = :nome, 
+                    cnpj = :cnpj, 
+                    responsavel = :responsavel, 
+                    email = :email, 
+                    telefone = :telefone,
+                    status = :status
+                WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            'nome' => $data['nome'],
+            'cnpj' => $data['cnpj'],
+            'responsavel' => $data['responsavel'],
+            'email' => $data['email'],
+            'telefone' => $data['telefone'],
+            'status' => $data['status'],
+            'id' => $id
+        ]);
+    }
+
+    public function getAll()
+    {
         $stmt = $this->db->query("SELECT * FROM associacoes ORDER BY created_at DESC");
         return $stmt->fetchAll();
     }
 
-    public function getPending() {
+    public function getPending()
+    {
         $stmt = $this->db->query("SELECT * FROM associacoes WHERE status = 'pending' ORDER BY created_at DESC");
         return $stmt->fetchAll();
     }
 
-    public function getTotalCount() {
+    public function getTotalCount()
+    {
         $stmt = $this->db->query("SELECT COUNT(*) as total FROM associacoes");
         $row = $stmt->fetch();
         return $row ? $row['total'] : 0;
     }
 
-    public function getPendingCount() {
+    public function getPendingCount()
+    {
         $stmt = $this->db->query("SELECT COUNT(*) as total FROM associacoes WHERE status = 'pending'");
         $row = $stmt->fetch();
         return $row ? $row['total'] : 0;
     }
 
-    public function findById($id) {
+    public function findById($id)
+    {
         $stmt = $this->db->prepare("SELECT * FROM associacoes WHERE id = :id");
         $stmt->execute(['id' => $id]);
         return $stmt->fetch();
     }
 
-    public function findByToken($token) {
+    public function findByToken($token)
+    {
         $stmt = $this->db->prepare("SELECT * FROM associacoes WHERE token = :token AND status = 'approved'");
         $stmt->execute(['token' => $token]);
         return $stmt->fetch();
     }
 
-    public function approve($id) {
+    public function approve($id)
+    {
         $assoc = $this->findById($id);
         if ($assoc && $assoc['status'] === 'approved') {
             return true;
@@ -60,16 +91,47 @@ class Associacao extends Model {
         return $stmt->execute(['token' => $token, 'senha' => $senha, 'id' => $id]);
     }
 
-    public function login($cnpj, $senha) {
-        $sql = "SELECT * FROM associacoes WHERE cnpj = :cnpj AND acesso_senha = :senha AND status = 'approved'";
+    public function gerarNovaSenha($id)
+    {
+        $assoc = $this->findById($id);
+        if (!$assoc || $assoc['status'] !== 'approved') {
+            return false;
+        }
+        $senha = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 8);
+        $sql = "UPDATE associacoes SET acesso_senha = :senha WHERE id = :id";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(['cnpj' => $cnpj, 'senha' => $senha]);
+        return $stmt->execute(['senha' => $senha, 'id' => $id]);
+    }
+
+    public function alterarSenha($id, $novaSenha)
+    {
+        $assoc = $this->findById($id);
+        if (!$assoc || $assoc['status'] !== 'approved') {
+            return false;
+        }
+        $sql = "UPDATE associacoes SET acesso_senha = :senha WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute(['senha' => $novaSenha, 'id' => $id]);
+    }
+
+    public function login($identificador, $senha)
+    {
+        $sql = "SELECT * FROM associacoes WHERE (cnpj = :identificador OR email = :identificador) AND acesso_senha = :senha AND status = 'approved'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['identificador' => $identificador, 'senha' => $senha]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function reject($id) {
+    public function reject($id)
+    {
         $sql = "UPDATE associacoes SET status = 'rejected' WHERE id = :id";
         $stmt = $this->db->prepare($sql);
+        return $stmt->execute(['id' => $id]);
+    }
+
+    public function delete($id)
+    {
+        $stmt = $this->db->prepare("DELETE FROM associacoes WHERE id = :id");
         return $stmt->execute(['id' => $id]);
     }
 }

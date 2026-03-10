@@ -17,18 +17,18 @@ class ManagerController extends Controller {
 
     public function login() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $cnpj = $_POST['cnpj'] ?? '';
+            $identificador = $_POST['identificador'] ?? '';
             $senha = $_POST['senha'] ?? '';
 
             $associacaoModel = new Associacao();
-            $manager = $associacaoModel->login($cnpj, $senha);
+            $manager = $associacaoModel->login($identificador, $senha);
 
             if ($manager) {
                 $_SESSION['manager_id'] = $manager['id'];
                 $_SESSION['manager_nome'] = $manager['nome'];
                 $this->redirect('/manager/dashboard');
             } else {
-                $this->view('manager/login', ['error' => 'CNPJ ou Senha inválidos.']);
+                $this->view('manager/login', ['error' => 'CNPJ, E-mail ou Senha inválidos.']);
             }
         }
     }
@@ -37,6 +37,40 @@ class ManagerController extends Controller {
         unset($_SESSION['manager_id']);
         unset($_SESSION['manager_nome']);
         $this->redirect('/manager/login');
+    }
+
+    public function alterarSenha() {
+        if (!isset($_SESSION['manager_id'])) {
+            $this->redirect('/manager/login');
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $novaSenha = $_POST['nova_senha'] ?? '';
+            $confirmaSenha = $_POST['confirma_senha'] ?? '';
+
+            if (empty($novaSenha) || empty($confirmaSenha)) {
+                $_SESSION['error_msg'] = "Preencha ambas as senhas.";
+                $this->redirect('/manager/dashboard');
+                return;
+            }
+
+            if ($novaSenha !== $confirmaSenha) {
+                $_SESSION['error_msg'] = "Puxa! As senhas não conferem. Tente novamente.";
+                $this->redirect('/manager/dashboard');
+                return;
+            }
+
+            $associacaoModel = new Associacao();
+            $success = $associacaoModel->alterarSenha($_SESSION['manager_id'], $novaSenha);
+
+            if ($success) {
+                $_SESSION['success_msg'] = "Sua senha foi atualizada com sucesso!";
+            } else {
+                $_SESSION['error_msg'] = "Ocorreu um erro ao atualizar a senha.";
+            }
+            
+            $this->redirect('/manager/dashboard');
+        }
     }
 
     public function dashboard() {
@@ -58,11 +92,15 @@ class ManagerController extends Controller {
 
         $associacao = $associacaoModel->findById($associacaoId);
         
+        $configModel = new Configuracao();
+        $config = $configModel->getAll();
+
         $this->view('manager/dashboard', [
             'membros' => $membros,
             'associacao_nome' => $_SESSION['manager_nome'],
             'associacao' => $associacao,
-            'metrics' => $metrics
+            'metrics' => $metrics,
+            'config' => $config
         ]);
     }
 
@@ -76,7 +114,10 @@ class ManagerController extends Controller {
             $this->redirect('/manager/dashboard');
         }
 
-        $this->view('manager/membro', ['membro' => $membro]);
+        $configModel = new Configuracao();
+        $config = $configModel->getAll();
+
+        $this->view('manager/membro', ['membro' => $membro, 'config' => $config]);
     }
 
     public function ficha($id) {
@@ -89,7 +130,10 @@ class ManagerController extends Controller {
             die("Membro não encontrado");
         }
 
-        $this->view('manager/ficha', ['membro' => $membro]);
+        $configModel = new Configuracao();
+        $config = $configModel->getAll();
+
+        $this->view('manager/ficha', ['membro' => $membro, 'config' => $config]);
     }
 
     public function atualizarMembro($id) {
@@ -103,13 +147,38 @@ class ManagerController extends Controller {
             ];
             
             foreach ($docs as $doc) {
-                $updates[$doc . '_status'] = isset($_POST[$doc . '_status']) ? 1 : 0;
-                $updates[$doc . '_validade'] = !empty($_POST[$doc . '_validade']) ? $_POST[$doc . '_validade'] : null;
+                if (isset($_POST[$doc . '_status'])) {
+                    $updates[$doc . '_status'] = 1;
+                } elseif (isset($_POST["{$doc}_status_hidden"])) {
+                    $updates[$doc . '_status'] = 0; // Checkbox unchecked
+                }
+                
+                if (isset($_POST[$doc . '_validade'])) {
+                    $updates[$doc . '_validade'] = !empty($_POST[$doc . '_validade']) ? $_POST[$doc . '_validade'] : null;
+                }
             }
-
             $associadoModel = new Associado();
             $associadoModel->updateDocumentStatus($id, $updates);
 
+            $this->redirect('/manager/membros/' . $id);
+        }
+    }
+
+    public function uploadFicha($id) {
+        $this->checkAccess($id);
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (isset($_FILES['doc_ficha_assinada']) && $_FILES['doc_ficha_assinada']['error'] === UPLOAD_ERR_OK) {
+                $uploadPath = __DIR__ . '/../../public/uploads/docs/';
+                if (!is_dir($uploadPath)) mkdir($uploadPath, 0755, true);
+                
+                $ext = pathinfo($_FILES['doc_ficha_assinada']['name'], PATHINFO_EXTENSION);
+                $filename = uniqid('doc_ficha_assinada_') . '.' . $ext;
+                if (move_uploaded_file($_FILES['doc_ficha_assinada']['tmp_name'], $uploadPath . $filename)) {
+                    $associadoModel = new Associado();
+                    $associadoModel->updateDataAndFiles($id, ['doc_ficha_assinada' => '/uploads/docs/' . $filename]);
+                }
+            }
             $this->redirect('/manager/membros/' . $id);
         }
     }
@@ -185,6 +254,11 @@ class ManagerController extends Controller {
                 'doc_identidade', 'doc_quitacao_eleitoral', 'doc_fiscal_federal',
                 'doc_fiscal_estadual', 'doc_fiscal_municipal', 'doc_situacao_cpf'
             ];
+            
+            $spouseDocuments = [
+                'doc_conjuge_identidade', 'doc_conjuge_quitacao_eleitoral', 'doc_conjuge_fiscal_federal',
+                'doc_conjuge_fiscal_estadual', 'doc_conjuge_fiscal_municipal', 'doc_conjuge_situacao_cpf'
+            ];
 
             foreach ($documents as $doc) {
                 if (isset($_FILES[$doc]) && $_FILES[$doc]['error'] === UPLOAD_ERR_OK) {
@@ -195,6 +269,23 @@ class ManagerController extends Controller {
                     }
                 } else {
                     $data[$doc] = null; // null means "don't update this field" in our updateDataAndFiles method
+                }
+            }
+
+            // Handle potential spouse file replacements conditionally
+            $isSingleStatus = in_array($data['estado_civil'], ['Solteiro(a)', 'Viúvo(a)', 'Divorciado(a)']);
+            
+            foreach ($spouseDocuments as $sDoc) {
+                if (!$isSingleStatus && isset($_FILES[$sDoc]) && $_FILES[$sDoc]['error'] === UPLOAD_ERR_OK) {
+                    $ext = pathinfo($_FILES[$sDoc]['name'], PATHINFO_EXTENSION);
+                    $filename = uniqid($sDoc . '_') . '.' . $ext;
+                    if (move_uploaded_file($_FILES[$sDoc]['tmp_name'], $uploadPath . $filename)) {
+                        $data[$sDoc] = '/uploads/docs/' . $filename;
+                    }
+                } else {
+                    // For single spouses, or when no new file is uploaded, we map to null
+                    // This way it won't overwrite existing db fields with empty if they didn't upload a new one
+                    $data[$sDoc] = null; 
                 }
             }
 

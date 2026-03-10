@@ -21,8 +21,8 @@
 
         <form action="/manager/login" method="POST" class="space-y-5">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">CNPJ da Associação</label>
-                <input type="text" name="cnpj" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" placeholder="00.000.000/0000-00">
+                <label class="block text-sm font-medium text-gray-700 mb-1">CNPJ ou E-mail da Associação</label>
+                <input type="text" name="identificador" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" placeholder="00.000.000/0000-00 ou email@exemplo.com">
             </div>
 
             <div>

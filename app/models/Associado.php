@@ -10,7 +10,9 @@ class Associado extends Model {
                     profissao_1, profissao_1_registro, profissao_1_orgao,
                     profissao_2, profissao_2_registro, profissao_2_orgao,
                     doc_identidade, doc_quitacao_eleitoral, doc_fiscal_federal, 
-                    doc_fiscal_estadual, doc_fiscal_municipal, doc_situacao_cpf
+                    doc_fiscal_estadual, doc_fiscal_municipal, doc_situacao_cpf,
+                    doc_conjuge_identidade, doc_conjuge_quitacao_eleitoral, doc_conjuge_fiscal_federal,
+                    doc_conjuge_fiscal_estadual, doc_conjuge_fiscal_municipal, doc_conjuge_situacao_cpf
                 ) 
                 VALUES (
                     :associacao_id, :nome, :cpf, :email, :telefone, :endereco, :numero, :complemento, :bairro, :cep, :cidade, :estado,
@@ -20,7 +22,9 @@ class Associado extends Model {
                     :profissao_1, :profissao_1_registro, :profissao_1_orgao,
                     :profissao_2, :profissao_2_registro, :profissao_2_orgao,
                     :doc_identidade, :doc_quitacao_eleitoral, :doc_fiscal_federal,
-                    :doc_fiscal_estadual, :doc_fiscal_municipal, :doc_situacao_cpf
+                    :doc_fiscal_estadual, :doc_fiscal_municipal, :doc_situacao_cpf,
+                    :doc_conjuge_identidade, :doc_conjuge_quitacao_eleitoral, :doc_conjuge_fiscal_federal,
+                    :doc_conjuge_fiscal_estadual, :doc_conjuge_fiscal_municipal, :doc_conjuge_situacao_cpf
                 )";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
@@ -61,7 +65,13 @@ class Associado extends Model {
             'doc_fiscal_federal' => $data['doc_fiscal_federal'],
             'doc_fiscal_estadual' => $data['doc_fiscal_estadual'],
             'doc_fiscal_municipal' => $data['doc_fiscal_municipal'],
-            'doc_situacao_cpf' => $data['doc_situacao_cpf']
+            'doc_situacao_cpf' => $data['doc_situacao_cpf'],
+            'doc_conjuge_identidade' => $data['doc_conjuge_identidade'] ?? null,
+            'doc_conjuge_quitacao_eleitoral' => $data['doc_conjuge_quitacao_eleitoral'] ?? null,
+            'doc_conjuge_fiscal_federal' => $data['doc_conjuge_fiscal_federal'] ?? null,
+            'doc_conjuge_fiscal_estadual' => $data['doc_conjuge_fiscal_estadual'] ?? null,
+            'doc_conjuge_fiscal_municipal' => $data['doc_conjuge_fiscal_municipal'] ?? null,
+            'doc_conjuge_situacao_cpf' => $data['doc_conjuge_situacao_cpf'] ?? null
         ]);
     }
 
@@ -117,7 +127,14 @@ class Associado extends Model {
             'doc_fiscal_federal_status', 'doc_fiscal_federal_validade',
             'doc_fiscal_estadual_status', 'doc_fiscal_estadual_validade',
             'doc_fiscal_municipal_status', 'doc_fiscal_municipal_validade',
-            'doc_situacao_cpf_status', 'doc_situacao_cpf_validade'
+            'doc_situacao_cpf_status', 'doc_situacao_cpf_validade',
+            'doc_conjuge_identidade_status', 'doc_conjuge_identidade_validade',
+            'doc_conjuge_quitacao_eleitoral_status', 'doc_conjuge_quitacao_eleitoral_validade',
+            'doc_conjuge_fiscal_federal_status', 'doc_conjuge_fiscal_federal_validade',
+            'doc_conjuge_fiscal_estadual_status', 'doc_conjuge_fiscal_estadual_validade',
+            'doc_conjuge_fiscal_municipal_status', 'doc_conjuge_fiscal_municipal_validade',
+            'doc_conjuge_situacao_cpf_status', 'doc_conjuge_situacao_cpf_validade',
+            'doc_ficha_assinada_status', 'doc_ficha_assinada_validade'
         ];
         
         $setClauses = [];
@@ -156,7 +173,10 @@ class Associado extends Model {
             'profissao_1', 'profissao_1_registro', 'profissao_1_orgao',
             'profissao_2', 'profissao_2_registro', 'profissao_2_orgao',
             'doc_identidade', 'doc_quitacao_eleitoral', 'doc_fiscal_federal',
-            'doc_fiscal_estadual', 'doc_fiscal_municipal', 'doc_situacao_cpf'
+            'doc_fiscal_estadual', 'doc_fiscal_municipal', 'doc_situacao_cpf',
+            'doc_conjuge_identidade', 'doc_conjuge_quitacao_eleitoral', 'doc_conjuge_fiscal_federal',
+            'doc_conjuge_fiscal_estadual', 'doc_conjuge_fiscal_municipal', 'doc_conjuge_situacao_cpf',
+            'doc_ficha_assinada'
         ];
         
         $setClauses = [];
@@ -184,7 +204,10 @@ class Associado extends Model {
         // 2. Unlink files if they exist
         $docFields = [
             'doc_identidade', 'doc_quitacao_eleitoral', 'doc_fiscal_federal',
-            'doc_fiscal_estadual', 'doc_fiscal_municipal', 'doc_situacao_cpf'
+            'doc_fiscal_estadual', 'doc_fiscal_municipal', 'doc_situacao_cpf',
+            'doc_conjuge_identidade', 'doc_conjuge_quitacao_eleitoral', 'doc_conjuge_fiscal_federal',
+            'doc_conjuge_fiscal_estadual', 'doc_conjuge_fiscal_municipal', 'doc_conjuge_situacao_cpf',
+            'doc_ficha_assinada'
         ];
 
         $uploadBasePath = __DIR__ . '/../../public';

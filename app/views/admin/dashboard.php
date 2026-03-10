@@ -8,6 +8,103 @@
 </div>
 
 <!-- KPI Metrics -->
+<?php if(isset($_SESSION['success_msg'])): ?>
+    <div class="mb-6 bg-green-50 border border-green-200 text-green-800 rounded-xl p-4 flex items-center shadow-sm">
+        <svg class="w-5 h-5 mr-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        <div class="flex-grow text-sm font-medium"><?= htmlspecialchars($_SESSION['success_msg']) ?></div>
+    </div>
+    <?php unset($_SESSION['success_msg']); ?>
+<?php endif; ?>
+
+<?php if(isset($_SESSION['error_msg'])): ?>
+    <div class="mb-6 bg-red-50 border border-red-200 text-red-800 rounded-xl p-4 flex items-center shadow-sm">
+        <svg class="w-5 h-5 mr-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        <div class="flex-grow text-sm font-medium"><?= htmlspecialchars($_SESSION['error_msg']) ?></div>
+    </div>
+    <?php unset($_SESSION['error_msg']); ?>
+<?php endif; ?>
+
+<!-- Admin Settings -->
+<div class="mb-8 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center cursor-pointer" onclick="document.getElementById('password-form-container').classList.toggle('hidden')">
+        <h3 class="text-sm font-bold text-gray-800 flex items-center space-x-2">
+            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <span>Configurações de Conta (Admin)</span>
+        </h3>
+        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+    </div>
+    
+    <div id="password-form-container" class="hidden p-6">
+        <form action="/admin/alterar-senha" method="POST" class="max-w-md">
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Alterar Senha de Acesso</h4>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nova Senha</label>
+                    <input type="password" name="nova_senha" required class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Confirme a Nova Senha</label>
+                    <input type="password" name="confirma_senha" required class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                </div>
+                <div class="pt-2">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition shadow-sm">
+                        Salvar Nova Senha
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Divider -->
+        <div class="border-t border-gray-100 my-6"></div>
+
+        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Gerenciamento do Sistema</h4>
+        <div class="flex items-center space-x-4">
+            <a href="/admin/usuarios" class="inline-flex items-center justify-center bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm transition">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                Contas Administrativas
+            </a>
+            <p class="text-xs text-gray-500">Cadastre e remova privilégios de outros administradores.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Payment (PIX) Settings -->
+<div class="mb-8 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="p-4 border-b border-gray-100 bg-emerald-50 flex justify-between items-center cursor-pointer" onclick="document.getElementById('pix-form-container').classList.toggle('hidden')">
+        <h3 class="text-sm font-bold text-emerald-800 flex items-center space-x-2">
+            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span>Configurações de Pagamento Global (PIX)</span>
+        </h3>
+        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+    </div>
+    
+    <div id="pix-form-container" class="hidden p-6 bg-white">
+        <form action="/admin/salvar-pix" method="POST" class="max-w-2xl">
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Dados Financeiros para Cobrança Automática</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Chave PIX Recebedora *</label>
+                    <input type="text" name="pix_chave" value="<?= htmlspecialchars($config['pix_chave'] ?? '') ?>" required placeholder="CNPJ, E-mail ou Telefone" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Valor Unitário do Cadastro (R$) *</label>
+                    <input type="text" name="pix_valor_cadastro" value="<?= htmlspecialchars($config['pix_valor_cadastro'] ?? '') ?>" required placeholder="Ex: 50,00" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-bold text-gray-700 mb-1">Instruções Extras para o Fim da Ficha Impressa</label>
+                <textarea name="pix_instrucoes" rows="3" placeholder="Insira o nome do Recebedor ou Banco para conferência..." class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition resize-none"><?= htmlspecialchars($config['pix_instrucoes'] ?? '') ?></textarea>
+            </div>
+            <div class="pt-2 flex items-center justify-between">
+                <p class="text-xs text-gray-500 w-3/4">Eles serão injetados automaticamente no Botão do WhatsApp dos Gestores e no verso do Relatório de Impressão.</p>
+                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-6 rounded-lg text-sm transition shadow-sm w-1/4">
+                    Salvar PIX
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col justify-center">
         <dt class="text-sm font-medium text-gray-500 mb-1">Total de Associações</dt>

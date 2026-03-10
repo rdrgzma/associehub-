@@ -62,6 +62,11 @@ class AssociadoController extends Controller {
                 'doc_identidade', 'doc_quitacao_eleitoral', 'doc_fiscal_federal',
                 'doc_fiscal_estadual', 'doc_fiscal_municipal', 'doc_situacao_cpf'
             ];
+            
+            $spouseDocuments = [
+                'doc_conjuge_identidade', 'doc_conjuge_quitacao_eleitoral', 'doc_conjuge_fiscal_federal',
+                'doc_conjuge_fiscal_estadual', 'doc_conjuge_fiscal_municipal', 'doc_conjuge_situacao_cpf'
+            ];
 
             foreach ($documents as $doc) {
                 $data[$doc] = null; // Default to null if no file
@@ -70,6 +75,19 @@ class AssociadoController extends Controller {
                     $filename = uniqid($doc . '_') . '.' . $ext;
                     if (move_uploaded_file($_FILES[$doc]['tmp_name'], $uploadPath . $filename)) {
                         $data[$doc] = '/uploads/docs/' . $filename;
+                    }
+                }
+            }
+
+            // Handle spouse documents conditionally
+            $isSingleStatus = in_array($data['estado_civil'], ['Solteiro(a)', 'Viúvo(a)', 'Divorciado(a)']);
+            foreach ($spouseDocuments as $sDoc) {
+                $data[$sDoc] = null; 
+                if (!$isSingleStatus && isset($_FILES[$sDoc]) && $_FILES[$sDoc]['error'] === UPLOAD_ERR_OK) {
+                    $ext = pathinfo($_FILES[$sDoc]['name'], PATHINFO_EXTENSION);
+                    $filename = uniqid($sDoc . '_') . '.' . $ext;
+                    if (move_uploaded_file($_FILES[$sDoc]['tmp_name'], $uploadPath . $filename)) {
+                        $data[$sDoc] = '/uploads/docs/' . $filename;
                     }
                 }
             }

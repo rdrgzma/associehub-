@@ -19,6 +19,7 @@ class AuthController extends Controller {
             if ($admin) {
                 $_SESSION['admin_id'] = $admin['id'];
                 $_SESSION['admin_nome'] = $admin['nome'];
+                $_SESSION['admin_email'] = $admin['email'];
                 $this->redirect('/admin/dashboard');
             } else {
                 $this->view('admin/login', ['error' => 'Credenciais inválidas.']);

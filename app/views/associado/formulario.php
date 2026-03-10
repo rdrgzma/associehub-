@@ -34,12 +34,12 @@
 
             <div class="md:col-span-1">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Data Nasc.</label>
-                <input type="date" name="data_nascimento" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" value="<?= htmlspecialchars($data['data_nascimento'] ?? '') ?>">
+                <input type="date" name="data_nascimento" id="data_nascimento" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" value="<?= htmlspecialchars($data['data_nascimento'] ?? '') ?>">
             </div>
 
             <div class="md:col-span-1">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Idade</label>
-                <input type="number" name="idade" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" value="<?= htmlspecialchars($data['idade'] ?? '') ?>">
+                <input type="number" name="idade" id="idade" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-gray-50 text-gray-600 outline-none transition cursor-not-allowed" value="<?= htmlspecialchars($data['idade'] ?? '') ?>" readonly>
             </div>
 
             <div class="md:col-span-2">
@@ -82,7 +82,7 @@
 
             <div class="md:col-span-3">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Estado Civil</label>
-                <select name="estado_civil" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                <select name="estado_civil" id="estado_civil" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition">
                     <option value="">Selecione...</option>
                     <option value="Solteiro(a)" <?= ($data['estado_civil'] ?? '') == 'Solteiro(a)' ? 'selected' : '' ?>>Solteiro(a)</option>
                     <option value="Casado(a)" <?= ($data['estado_civil'] ?? '') == 'Casado(a)' ? 'selected' : '' ?>>Casado(a)</option>
@@ -92,10 +92,11 @@
                 </select>
             </div>
 
-            <div class="md:col-span-3">
+            <div class="md:col-span-3" id="container_forma_comunhao">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Forma de Comunhão</label>
-                <select name="forma_comunhao" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                <select name="forma_comunhao" id="forma_comunhao" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition">
                     <option value="">Selecione...</option>
+                    <option value="N/A" <?= ($data['forma_comunhao'] ?? '') == 'N/A' ? 'selected' : '' ?>>N/A</option>
                     <option value="Comunhão Parcial" <?= ($data['forma_comunhao'] ?? '') == 'Comunhão Parcial' ? 'selected' : '' ?>>Comunhão Parcial</option>
                     <option value="Comunhão Universal" <?= ($data['forma_comunhao'] ?? '') == 'Comunhão Universal' ? 'selected' : '' ?>>Comunhão Universal</option>
                     <option value="Separação Total" <?= ($data['forma_comunhao'] ?? '') == 'Separação Total' ? 'selected' : '' ?>>Separação Total</option>
@@ -103,11 +104,11 @@
                 </select>
             </div>
 
-            <div class="md:col-span-4">
+            <div class="md:col-span-4" id="container_conjuge_nome">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nome do Cônjuge</label>
-                <input type="text" name="conjuge_nome" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" value="<?= htmlspecialchars($data['conjuge_nome'] ?? '') ?>">
+                <input type="text" name="conjuge_nome" id="conjuge_nome" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" value="<?= htmlspecialchars($data['conjuge_nome'] ?? '') ?>">
             </div>
-            <div class="md:col-span-2">
+            <div class="md:col-span-2" id="container_conjuge_cpf">
                 <label class="block text-sm font-medium text-gray-700 mb-1">CPF do Cônjuge</label>
                 <input type="text" name="conjuge_cpf" id="conjuge_cpf" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" value="<?= htmlspecialchars($data['conjuge_cpf'] ?? '') ?>">
             </div>
@@ -148,6 +149,18 @@
                 <h3 class="text-lg font-semibold text-gray-900 border-b border-gray-100 pb-2">Endereço e Contato</h3>
             </div>
 
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">CEP</label>
+                <div class="relative">
+                    <input type="text" name="cep" id="cep" required class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" value="<?= htmlspecialchars($data['cep'] ?? '') ?>" placeholder="00000-000">
+                    <button type="button" id="btn_buscar_cep" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-indigo-600 transition bg-transparent" title="Buscar CEP">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
             <div class="md:col-span-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Logradouro Residencial</label>
                 <input type="text" name="endereco" id="endereco" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" value="<?= htmlspecialchars($data['endereco'] ?? '') ?>" placeholder="Rua, Avenida, etc.">
@@ -164,10 +177,6 @@
             <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Bairro</label>
                 <input type="text" name="bairro" id="bairro" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" value="<?= htmlspecialchars($data['bairro'] ?? '') ?>">
-            </div>
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1">CEP</label>
-                <input type="text" name="cep" id="cep" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" value="<?= htmlspecialchars($data['cep'] ?? '') ?>" placeholder="00000-000">
             </div>
 
             <div class="md:col-span-4">
@@ -229,6 +238,50 @@
                 <div id="preview-doc_situacao_cpf" class="mt-2 hidden"></div>
             </div>
 
+            <!-- Spouse Documents (Hidden by default unless Casado/União Estável) -->
+            <div id="container_docs_conjuge" class="hidden md:col-span-6 grid grid-cols-1 md:grid-cols-6 gap-6 mt-4 pt-4 border-t border-indigo-100 bg-indigo-50/30 p-4 rounded-xl">
+                <div class="md:col-span-6">
+                    <h3 class="text-lg font-semibold text-indigo-900 mb-1 text-center">Documentos Obrigatórios do Cônjuge</h3>
+                    <p class="text-xs text-indigo-600 text-center mb-4">Como você declarou ser casado(a) ou estar em união estável, anexe a documentação do companheiro(a).</p>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Doc. Identificação (Cônjuge)</label>
+                    <input type="file" name="doc_conjuge_identidade" id="doc_conjuge_identidade" accept=".pdf,.jpg,.jpeg,.png" class="spouse-doc-input w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white file:text-indigo-700 hover:file:bg-gray-50">
+                    <div id="preview-doc_conjuge_identidade" class="mt-2 hidden"></div>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Quitação Eleitoral (Cônjuge)</label>
+                    <input type="file" name="doc_conjuge_quitacao_eleitoral" id="doc_conjuge_quitacao_eleitoral" accept=".pdf,.jpg,.jpeg,.png" class="spouse-doc-input w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white file:text-indigo-700 hover:file:bg-gray-50">
+                    <div id="preview-doc_conjuge_quitacao_eleitoral" class="mt-2 hidden"></div>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Sist. Fiscal Federal (Cônjuge)</label>
+                    <input type="file" name="doc_conjuge_fiscal_federal" id="doc_conjuge_fiscal_federal" accept=".pdf,.jpg,.jpeg,.png" class="spouse-doc-input w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white file:text-indigo-700 hover:file:bg-gray-50">
+                    <div id="preview-doc_conjuge_fiscal_federal" class="mt-2 hidden"></div>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Sist. Fiscal Estadual (Cônjuge)</label>
+                    <input type="file" name="doc_conjuge_fiscal_estadual" id="doc_conjuge_fiscal_estadual" accept=".pdf,.jpg,.jpeg,.png" class="spouse-doc-input w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white file:text-indigo-700 hover:file:bg-gray-50">
+                    <div id="preview-doc_conjuge_fiscal_estadual" class="mt-2 hidden"></div>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Sist. Fiscal Municipal (Cônjuge)</label>
+                    <input type="file" name="doc_conjuge_fiscal_municipal" id="doc_conjuge_fiscal_municipal" accept=".pdf,.jpg,.jpeg,.png" class="spouse-doc-input w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white file:text-indigo-700 hover:file:bg-gray-50">
+                    <div id="preview-doc_conjuge_fiscal_municipal" class="mt-2 hidden"></div>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Situação no CPF (Cônjuge)</label>
+                    <input type="file" name="doc_conjuge_situacao_cpf" id="doc_conjuge_situacao_cpf" accept=".pdf,.jpg,.jpeg,.png" class="spouse-doc-input w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white file:text-indigo-700 hover:file:bg-gray-50">
+                    <div id="preview-doc_conjuge_situacao_cpf" class="mt-2 hidden"></div>
+                </div>
+            </div>
+
             <div class="md:col-span-6 mt-6">
                 <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl transition shadow-lg flex items-center justify-center space-x-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -270,34 +323,134 @@ document.addEventListener('DOMContentLoaded', function() {
     const phoneEl = document.getElementById('telefone');
     if (phoneEl) applyMask(phoneEl, phoneMask);
 
-    // 2. ViaCEP Integration
-    if (cepEl) {
-        cepEl.addEventListener('blur', async function() {
-            const cep = this.value.replace(/\D/g, '');
-            if (cep.length === 8) {
-                try {
-                    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-                    const data = await response.json();
-                    if (!data.erro) {
-                        document.getElementById('endereco').value = data.logradouro;
-                        document.getElementById('bairro').value = data.bairro;
-                        document.getElementById('cidade').value = data.localidade;
-                        document.getElementById('estado').value = data.uf;
-                        // Focus on number field if empty
-                        const numEl = document.getElementsByName('numero')[0];
-                        if (numEl && !numEl.value) numEl.focus();
-                    }
-                } catch (err) {
-                    console.error('ViaCEP Error:', err);
-                }
-            }
-        });
+    // 2. Dynamic Marital Status Fields
+    const estadoCivilSelect = document.getElementById('estado_civil');
+    const containerComunhao = document.getElementById('container_forma_comunhao');
+    const containerConjNome = document.getElementById('container_conjuge_nome');
+    const containerConjCpf = document.getElementById('container_conjuge_cpf');
+    const containerDocsConjuge = document.getElementById('container_docs_conjuge');
+    const inputComunhao = document.getElementById('forma_comunhao');
+    const inputConjNome = document.getElementById('conjuge_nome');
+    const inputConjCpf = document.getElementById('conjuge_cpf');
+
+    function handleMaritalStatus() {
+        if (!estadoCivilSelect) return;
+        
+        const value = estadoCivilSelect.value;
+        const hideFields = ['Solteiro(a)', 'Viúvo(a)', 'Divorciado(a)'].includes(value);
+
+        const spouseDocInputs = document.querySelectorAll('.spouse-doc-input');
+
+        if (hideFields) {
+            containerComunhao.classList.add('hidden');
+            containerConjNome.classList.add('hidden');
+            containerConjCpf.classList.add('hidden');
+            containerDocsConjuge.classList.add('hidden');
+            
+            inputComunhao.value = 'N/A';
+            inputConjNome.value = 'N/A';
+            inputConjCpf.value = 'N/A';
+            
+            // Remove required attribute from spouse files when hidden
+            spouseDocInputs.forEach(input => input.removeAttribute('required'));
+        } else {
+            containerComunhao.classList.remove('hidden');
+            containerConjNome.classList.remove('hidden');
+            containerConjCpf.classList.remove('hidden');
+            containerDocsConjuge.classList.remove('hidden');
+            
+            if (inputComunhao.value === 'N/A') inputComunhao.value = '';
+            if (inputConjNome.value === 'N/A') inputConjNome.value = '';
+            if (inputConjCpf.value === 'N/A') inputConjCpf.value = '';
+            
+            // Require spouse files when visible
+            spouseDocInputs.forEach(input => input.setAttribute('required', 'required'));
+        }
     }
 
-    // 3. File Previews
+    if (estadoCivilSelect) {
+        estadoCivilSelect.addEventListener('change', handleMaritalStatus);
+        handleMaritalStatus(); // Run on load
+    }
+
+    // 3. ViaCEP Integration
+    const buscarCepHelper = async function() {
+        const cep = cepEl.value.replace(/\D/g, '');
+        if (cep.length === 8) {
+            const btnBuscarCep = document.getElementById('btn_buscar_cep');
+            if (btnBuscarCep) btnBuscarCep.innerHTML = '<svg class="animate-spin h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+            
+            try {
+                const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const data = await response.json();
+                if (!data.erro) {
+                    document.getElementById('endereco').value = data.logradouro;
+                    document.getElementById('bairro').value = data.bairro;
+                    document.getElementById('cidade').value = data.localidade;
+                    document.getElementById('estado').value = data.uf;
+                    // Focus on number field if empty
+                    const numEl = document.getElementsByName('numero')[0];
+                    if (numEl && !numEl.value) numEl.focus();
+                } else {
+                    alert('CEP não encontrado. Por favor, verifique se está correto.');
+                }
+            } catch (err) {
+                console.error('ViaCEP Error:', err);
+                alert('Erro ao buscar o CEP. Tente novamente mais tarde.');
+            } finally {
+                if (btnBuscarCep) btnBuscarCep.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>';
+            }
+        } else if (cep.length > 0 && cep.length < 8) {
+            alert('CEP incompleto. Digite os 8 dígitos.');
+        }
+    };
+
+    if (cepEl) {
+        cepEl.addEventListener('blur', function() {
+            if (this.value.replace(/\D/g, '').length === 8) {
+                buscarCepHelper();
+            }
+        });
+
+        const btnBuscarCep = document.getElementById('btn_buscar_cep');
+        if (btnBuscarCep) {
+            btnBuscarCep.addEventListener('click', buscarCepHelper);
+        }
+    }
+
+    // 4. Calcular Idade
+    const dataNascimentoInput = document.getElementById('data_nascimento');
+    const idadeInput = document.getElementById('idade');
+
+    if (dataNascimentoInput && idadeInput) {
+        const calcularIdade = () => {
+            if (dataNascimentoInput.value) {
+                const [year, month, day] = dataNascimentoInput.value.split('-');
+                if (year && month && day) {
+                    const birth = new Date(year, month - 1, day);
+                    const today = new Date();
+                    let age = today.getFullYear() - birth.getFullYear();
+                    const m_diff = today.getMonth() - birth.getMonth();
+                    if (m_diff < 0 || (m_diff === 0 && today.getDate() < birth.getDate())) {
+                        age--;
+                    }
+                    idadeInput.value = age >= 0 ? age : 0;
+                }
+            } else {
+                idadeInput.value = '';
+            }
+        };
+
+        dataNascimentoInput.addEventListener('change', calcularIdade);
+        dataNascimentoInput.addEventListener('input', calcularIdade);
+    }
+
+    // 5. File Previews
     const fileInputs = [
         'doc_identidade', 'doc_quitacao_eleitoral', 'doc_fiscal_federal', 
-        'doc_fiscal_estadual', 'doc_fiscal_municipal', 'doc_situacao_cpf'
+        'doc_fiscal_estadual', 'doc_fiscal_municipal', 'doc_situacao_cpf',
+        'doc_conjuge_identidade', 'doc_conjuge_quitacao_eleitoral', 'doc_conjuge_fiscal_federal', 
+        'doc_conjuge_fiscal_estadual', 'doc_conjuge_fiscal_municipal', 'doc_conjuge_situacao_cpf'
     ];
 
     fileInputs.forEach(id => {
