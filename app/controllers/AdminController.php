@@ -229,6 +229,10 @@ class AdminController extends Controller {
             
             try {
                 if ($associacaoModel->update($id, $data)) {
+                    // Se o status foi alterado para 'approved', garantir que tenha token e senha
+                    if ($data['status'] === 'approved') {
+                        $associacaoModel->approve($id);
+                    }
                     $_SESSION['success_msg'] = "Dados da Associação atualizados com sucesso!";
                 } else {
                     $_SESSION['error_msg'] = "Nenhuma alteração foi realizada.";

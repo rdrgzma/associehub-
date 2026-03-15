@@ -81,11 +81,18 @@ class Associacao extends Model
     public function approve($id)
     {
         $assoc = $this->findById($id);
-        if ($assoc && $assoc['status'] === 'approved') {
+        if (!$assoc) {
+            return false;
+        }
+
+        // Se já estiver aprovada E já tiver token/senha, não faz nada
+        if ($assoc['status'] === 'approved' && !empty($assoc['token']) && !empty($assoc['acesso_senha'])) {
             return true;
         }
-        $token = bin2hex(random_bytes(16));
-        $senha = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 8);
+
+        $token = $assoc['token'] ?: bin2hex(random_bytes(16));
+        $senha = $assoc['acesso_senha'] ?: substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 8);
+        
         $sql = "UPDATE associacoes SET status = 'approved', token = :token, acesso_senha = :senha WHERE id = :id";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute(['token' => $token, 'senha' => $senha, 'id' => $id]);
