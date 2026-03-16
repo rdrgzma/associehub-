@@ -1,0 +1,8 @@
+# Bloquear acesso direto a esta pasta via web
+Order deny,allow
+Deny from all
+
+# Para servidores com Apache 2.4+
+<IfModule mod_authz_core_c>
+    Require all denied
+</IfModule>
