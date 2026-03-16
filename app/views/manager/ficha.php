@@ -382,8 +382,11 @@
 
         <div class="footer-signature">
             <p style="text-align: left; margin-bottom: 40px; font-size: 14px;">Declaro que as informações constantes nesta ficha são verdadeiras e assumo inteira responsabilidade pelas mesmas.</p>
+            <br>
+            <br>
             <div class="signature-line"></div>
             <p style="margin-top: 5px; font-weight: bold;"><?= htmlspecialchars($membro['nome']) ?></p>
+           
             <p style="font-size: 12px; color: #6b7280;">Assinatura do Associado</p>
             <p style="font-size: 12px; margin-top: 20px; color: #6b7280;">Documento gerado em <?= date('d/m/Y') ?></p>
         </div>
@@ -413,7 +416,7 @@
             <?php endif; ?>
             
             <p style="margin-top: 60px; font-size: 14px; color: #6b7280; font-style: italic;">
-                Lembrete: Envie o comprovante de pagamento à lotérica responsável para autenticação imediata do seu cadastro junto à Associação.
+                Lembrete: Envie o comprovante de pagamento ao responsável para autenticação imediata do seu cadastro junto à Associação.
             </p>
         </div>
     </div>

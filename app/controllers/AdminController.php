@@ -10,6 +10,7 @@ class AdminController extends Controller {
     public function dashboard() {
         $associacaoModel = new Associacao();
         $associadoModel = new Associado();
+        $financeiroModel = new Financeiro();
         
         $pending = $associacaoModel->getPending();
         $all = $associacaoModel->getAll();
@@ -34,7 +35,8 @@ class AdminController extends Controller {
             'pending' => $pending,
             'associacoes' => $all,
             'metrics' => $metrics,
-            'config' => $config
+            'config' => $config,
+            'financeiroMetrics' => $financeiroModel->getMetrics()
         ]);
     }
 
@@ -56,9 +58,19 @@ class AdminController extends Controller {
     }
 
     public function associacoes() {
+        $search = $_GET['search'] ?? null;
+        $status = $_GET['status'] ?? null;
+        
         $associacaoModel = new Associacao();
-        $associacoes = $associacaoModel->getAll();
-        $this->view('admin/associacoes', ['associacoes' => $associacoes]);
+        $associacoes = $associacaoModel->search($search, $status);
+        
+        $this->view('admin/associacoes', [
+            'associacoes' => $associacoes,
+            'filters' => [
+                'search' => $search,
+                'status' => $status
+            ]
+        ]);
     }
 
     public function aprovar($id) {
@@ -93,22 +105,49 @@ class AdminController extends Controller {
             }
 
             if ($novaSenha !== $confirmaSenha) {
-                $_SESSION['error_msg'] = "Puxa! As senhas não conferem. Tente novamente.";
+                $_SESSION['error_msg'] = "As senhas não coincidem.";
                 $this->redirect('/admin/dashboard');
                 return;
             }
 
             $adminModel = new Admin();
-            $success = $adminModel->updatePassword($_SESSION['admin_id'], $novaSenha);
-
-            if ($success) {
-                $_SESSION['success_msg'] = "Sua senha foi atualizada com sucesso!";
+            if ($adminModel->updatePassword($_SESSION['admin_id'], $novaSenha)) {
+                $_SESSION['success_msg'] = "Senha alterada com sucesso!";
             } else {
-                $_SESSION['error_msg'] = "Ocorreu um erro ao atualizar a senha.";
+                $_SESSION['error_msg'] = "Erro ao alterar a senha.";
             }
-            
             $this->redirect('/admin/dashboard');
         }
+    }
+
+    public function financeiro() {
+        $financeiroModel = new Financeiro();
+        
+        $filters = [
+            'data_inicio' => $_GET['data_inicio'] ?? null,
+            'data_fim' => $_GET['data_fim'] ?? null,
+            'valor_min' => $_GET['valor_min'] ?? null,
+            'valor_max' => $_GET['valor_max'] ?? null
+        ];
+
+        $pagamentos = $financeiroModel->getPagamentos($filters);
+        $metrics = $financeiroModel->getMetrics();
+
+        $this->view('admin/financeiro', [
+            'pagamentos' => $pagamentos,
+            'metrics' => $metrics,
+            'filters' => $filters
+        ]);
+    }
+
+    public function cancelarPagamento($id) {
+        if (!isset($_SESSION['admin_id'])) {
+            $this->redirect('/admin/login');
+        }
+        $finModel = new Financeiro();
+        $finModel->cancelPayment($id);
+        $_SESSION['success_msg'] = "Pagamento cancelado com sucesso!";
+        $this->redirect('/admin/financeiro');
     }
 
     public function revelarSenhaManager() {
@@ -168,6 +207,9 @@ class AdminController extends Controller {
     }
 
     public function membros($id) {
+        $search = $_GET['search'] ?? null;
+        $situacao = isset($_GET['situacao']) && $_GET['situacao'] !== '' ? $_GET['situacao'] : null;
+
         $associacaoModel = new Associacao();
         $associadoModel = new Associado();
         
@@ -176,7 +218,7 @@ class AdminController extends Controller {
             $this->redirect('/admin/dashboard');
         }
         
-        $membros = $associadoModel->getByAssociacaoId($id);
+        $membros = $associadoModel->search($id, $search, $situacao);
         
         $metrics = [
             'total_membros' => $associadoModel->getTotalByAssociacao($id),
@@ -187,11 +229,19 @@ class AdminController extends Controller {
         $configModel = new Configuracao();
         $config = $configModel->getAll();
 
+        $nominataModel = new Nominata();
+        $nominata = $nominataModel->getByAssociacaoId($id);
+
         $this->view('admin/membros', [
             'associacao' => $associacao,
             'membros' => $membros,
             'metrics' => $metrics,
-            'config' => $config
+            'config' => $config,
+            'nominata' => $nominata,
+            'filters' => [
+                'search' => $search,
+                'situacao' => $situacao
+            ]
         ]);
     }
 
@@ -286,12 +336,21 @@ class AdminController extends Controller {
     public function atualizarMembro($id) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $updates = [];
-            $docs = [
+            $documents = [
                 'doc_identidade', 'doc_quitacao_eleitoral', 'doc_fiscal_federal',
-                'doc_fiscal_estadual', 'doc_fiscal_municipal', 'doc_situacao_cpf'
+                'doc_fiscal_estadual', 'doc_fiscal_municipal', 'doc_situacao_cpf',
+                'doc_nascimento_casamento'
             ];
             
-            foreach ($docs as $doc) {
+            $spouseDocuments = [
+                'doc_conjuge_identidade', 'doc_conjuge_quitacao_eleitoral', 'doc_conjuge_fiscal_federal',
+                'doc_conjuge_fiscal_estadual', 'doc_conjuge_fiscal_municipal', 'doc_conjuge_situacao_cpf',
+                'doc_conjuge_nascimento_casamento'
+            ];
+
+            $allDocs = array_merge($documents, $spouseDocuments);
+            
+            foreach ($allDocs as $doc) {
                 if (isset($_POST[$doc . '_status'])) {
                     $updates[$doc . '_status'] = 1;
                 } elseif (isset($_POST["{$doc}_status_hidden"])) {
@@ -388,8 +447,12 @@ class AdminController extends Controller {
             // Handle potential file replacements
             $uploadPath = __DIR__ . '/../../public/uploads/docs/';
             $documents = [
-                'doc_identidade', 'doc_quitacao_eleitoral', 'doc_fiscal_federal',
-                'doc_fiscal_estadual', 'doc_fiscal_municipal', 'doc_situacao_cpf'
+                'doc_identidade', 'doc_quitacao_eleitoral', 'doc_fiscal_federal', 
+                'doc_fiscal_estadual', 'doc_fiscal_municipal', 'doc_situacao_cpf',
+                'doc_nascimento_casamento',
+                'doc_conjuge_identidade', 'doc_conjuge_quitacao_eleitoral', 'doc_conjuge_fiscal_federal',
+                'doc_conjuge_fiscal_estadual', 'doc_conjuge_fiscal_municipal', 'doc_conjuge_situacao_cpf',
+                'doc_conjuge_nascimento_casamento'
             ];
 
             foreach ($documents as $doc) {
@@ -423,6 +486,95 @@ class AdminController extends Controller {
                 $this->redirect('/admin/dashboard');
             }
         }
+    }
+
+    public function nominata($id) {
+        $associacaoModel = new Associacao();
+        $associacao = $associacaoModel->findById($id);
+        if (!$associacao) {
+            $this->redirect('/admin/associacoes');
+        }
+
+        $nominataModel = new Nominata();
+        $associadoModel = new Associado();
+
+        $nominata = $nominataModel->getByAssociacaoId($id);
+        $membros = $associadoModel->getByAssociacaoId($id);
+
+        $this->view('admin/nominata', [
+            'associacao' => $associacao,
+            'nominata' => $nominata,
+            'membros' => $membros
+        ]);
+    }
+
+    public function salvarNominata($id) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $nominataModel = new Nominata();
+            
+            $nominataIds = $_POST['nominata_id'] ?? [];
+            $cargos = $_POST['cargo'] ?? [];
+            $membroIds = $_POST['associado_id'] ?? [];
+
+            foreach ($nominataIds as $index => $posId) {
+                if (isset($cargos[$index])) {
+                    $nominataModel->updateCargoName($id, $posId, $cargos[$index]);
+                }
+                if (isset($membroIds[$index])) {
+                    $nominataModel->updatePosition($id, $posId, $membroIds[$index]);
+                }
+            }
+
+            $_SESSION['success_msg'] = "Nominata atualizada com sucesso!";
+            $this->redirect('/admin/associacoes/' . $id . '/nominata');
+        }
+    }
+
+    public function adicionarCargo($id) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $cargo = $_POST['novo_cargo'] ?? 'Novo Cargo';
+            $nominataModel = new Nominata();
+            $nominataModel->addPosition($id, $cargo);
+            
+            $_SESSION['success_msg'] = "Novo cargo adicionado à nominata!";
+            $this->redirect('/admin/associacoes/' . $id . '/nominata');
+        }
+    }
+
+    public function removerCargo($id, $cargoId) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $nominataModel = new Nominata();
+            $nominataModel->deletePosition($id, $cargoId);
+            
+            $_SESSION['success_msg'] = "Cargo removido da nominata.";
+            $this->redirect('/admin/associacoes/' . $id . '/nominata');
+        }
+    }
+
+    public function imprimirLista($id) {
+        $associacaoModel = new Associacao();
+        $associacao = $associacaoModel->findById($id);
+        if (!$associacao) {
+            $this->redirect('/admin/associacoes');
+        }
+
+        $showNominata = isset($_GET['nominata']) && $_GET['nominata'] === '1';
+
+        $associadoModel = new Associado();
+        $membros = $associadoModel->getByAssociacaoId($id);
+
+        $nominata = [];
+        if ($showNominata) {
+            $nominataModel = new Nominata();
+            $nominata = $nominataModel->getByAssociacaoId($id);
+        }
+
+        $this->view('shared/presenca', [
+            'associacao' => $associacao,
+            'membros' => $membros,
+            'nominata' => $nominata,
+            'show_nominata' => $showNominata
+        ]);
     }
 
     // --- ADMIN USERS MANAGEMENT ---

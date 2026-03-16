@@ -59,14 +59,31 @@ class AssociadoController extends Controller {
             // Handle file uploads
             $uploadPath = __DIR__ . '/../../public/uploads/docs/';
             $documents = [
-                'doc_identidade', 'doc_quitacao_eleitoral', 'doc_fiscal_federal',
-                'doc_fiscal_estadual', 'doc_fiscal_municipal', 'doc_situacao_cpf'
+                'doc_identidade', 'doc_nascimento_casamento'
             ];
             
             $spouseDocuments = [
-                'doc_conjuge_identidade', 'doc_conjuge_quitacao_eleitoral', 'doc_conjuge_fiscal_federal',
-                'doc_conjuge_fiscal_estadual', 'doc_conjuge_fiscal_municipal', 'doc_conjuge_situacao_cpf'
+                'doc_conjuge_identidade', 'doc_conjuge_nascimento_casamento'
             ];
+
+            // Get Config for default payment value
+            $configModel = new Configuracao();
+            $config = $configModel->getAll();
+            $defaultValor = !empty($config['pix_valor_cadastro']) ? (float)str_replace(',', '.', $config['pix_valor_cadastro']) : 0;
+
+            $data['pagamento_valor'] = !empty($_POST['pagamento_valor']) ? (float)str_replace(',', '.', $_POST['pagamento_valor']) : $defaultValor;
+            $data['pagamento_data'] = date('Y-m-d H:i:s');
+            $data['recorrencia'] = $_POST['recorrencia'] ?? 'mensal'; // Default to monthly for members
+            $data['pagamento_comprovante'] = null;
+
+            // Handle payment proof upload specifically
+            if (isset($_FILES['pagamento_comprovante']) && $_FILES['pagamento_comprovante']['error'] === UPLOAD_ERR_OK) {
+                $ext = pathinfo($_FILES['pagamento_comprovante']['name'], PATHINFO_EXTENSION);
+                $filename = 'mem_pay_' . uniqid() . '.' . $ext;
+                if (move_uploaded_file($_FILES['pagamento_comprovante']['tmp_name'], $uploadPath . $filename)) {
+                    $data['pagamento_comprovante'] = '/uploads/docs/' . $filename;
+                }
+            }
 
             foreach ($documents as $doc) {
                 $data[$doc] = null; // Default to null if no file
@@ -94,9 +111,28 @@ class AssociadoController extends Controller {
 
             $associadoModel = new Associado();
             try {
+                $db = Database::getConnection();
+                $db->beginTransaction();
+
                 if ($associadoModel->create($data)) {
+                    $membId = $db->lastInsertId();
+
+                    // Create payment record
+                    $finModel = new Financeiro();
+                    $finModel->createPayment([
+                        'tipo' => 'associado',
+                        'ref_id' => $membId,
+                        'valor' => $data['pagamento_valor'],
+                        'status' => !empty($data['pagamento_comprovante']) ? 'pago' : 'pendente',
+                        'recorrencia' => $data['recorrencia'],
+                        'comprovante' => $data['pagamento_comprovante'] ?? null,
+                        'data_pagamento' => !empty($data['pagamento_comprovante']) ? $data['pagamento_data'] : null
+                    ]);
+
+                    $db->commit();
                     $this->redirect('/associado/sucesso');
                 } else {
+                    $db->rollBack();
                     $this->view('associado/formulario', [
                         'error' => 'Erro ao registrar associado.', 
                         'associacao' => $associacao,

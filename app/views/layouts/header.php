@@ -32,11 +32,13 @@
                 <?php if(isset($_SESSION['admin_id'])): ?>
                     <a href="/admin/dashboard" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md font-medium border border-indigo-400 bg-indigo-500 text-sm">Painel Admin</a>
                     <a href="/admin/associacoes" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md font-medium text-sm">Associações</a>
+                    <a href="/admin/financeiro" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md font-medium text-sm">Financeiro</a>
                     <a href="/admin/logout" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md font-medium text-sm">Sair</a>
                 <?php endif; ?>
 
                 <?php if(isset($_SESSION['manager_id'])): ?>
                     <a href="/manager/dashboard" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md font-medium border border-indigo-400 bg-indigo-500 text-sm">Painel da Associação</a>
+                    <a href="/manager/financeiro" class="text-indigo-100 hover:text-white px-3 py-2 rounded-md font-medium text-sm">Financeiro</a>
                 <?php endif; ?>
             </nav>
         </div>

@@ -209,8 +209,8 @@
             </div>
 
             <!-- Documents Section -->
-            <div class="md:col-span-2 mt-6">
-                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider border-b border-gray-200 pb-2 mb-4">Substituição de Documentos</h3>
+            <div class="md:col-span-6 mt-6">
+                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider border-b border-gray-200 pb-2 mb-4">Substituição de Documentos (Associado(a))</h3>
                 <p class="text-xs text-amber-600 mb-4 bg-amber-50 p-2 rounded border border-amber-100 font-medium">
                     Aviso: Envie um novo arquivo apenas se desejar substituir o documento atual. Caso contrário, deixe o campo de arquivo vazio e o documento atual será preservado.
                 </p>
@@ -219,16 +219,12 @@
             <?php
             $documentos = [
                 'doc_identidade' => 'Cópia do Documento de Identificação',
-                'doc_quitacao_eleitoral' => 'Comprovante de Quitação Eleitoral',
-                'doc_fiscal_federal' => 'Certidão de Situação Fiscal Federal',
-                'doc_fiscal_estadual' => 'Certidão de Situação Fiscal Estadual',
-                'doc_fiscal_municipal' => 'Certidão de Situação Fiscal Municipal',
-                'doc_situacao_cpf' => 'Comprovante de Situação Cadastral no CPF'
+                'doc_nascimento_casamento' => 'Certidão de Nascimento ou Casamento'
             ];
             
             foreach($documentos as $key => $label): 
             ?>
-            <div class="md:col-span-2 bg-gray-50 border border-gray-200 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="md:col-span-3 bg-gray-50 border border-gray-200 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex-1">
                     <label class="block text-sm font-semibold text-gray-800 mb-1"><?= $label ?></label>
                     <?php if(!empty($membro[$key])): ?>
@@ -242,6 +238,9 @@
                     
                     <input type="file" name="<?= $key ?>" id="<?= $key ?>" accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-white file:border-gray-300 file:border file:text-gray-700 hover:file:bg-gray-100 cursor-pointer">
                     <div id="preview-<?= $key ?>" class="mt-2 hidden"></div>
+                    <?php if($key == 'doc_nascimento_casamento'): ?>
+                        <p class="text-[10px] text-gray-400 mt-1" id="label_hint_doc_nascimento_casamento">Certidão exigida conforme estado civil.</p>
+                    <?php endif; ?>
                 </div>
             </div>
             <?php endforeach; ?>
@@ -256,16 +255,12 @@
                 <?php
                 $documentos_conjuge = [
                     'doc_conjuge_identidade' => 'Identificação do Cônjuge',
-                    'doc_conjuge_quitacao_eleitoral' => 'Quitação Eleitoral do Cônjuge',
-                    'doc_conjuge_fiscal_federal' => 'Sit. Fiscal Federal do Cônjuge',
-                    'doc_conjuge_fiscal_estadual' => 'Sit. Fiscal Estadual do Cônjuge',
-                    'doc_conjuge_fiscal_municipal' => 'Sit. Fiscal Municipal do Cônjuge',
-                    'doc_conjuge_situacao_cpf' => 'Situação no CPF do Cônjuge'
+                    'doc_conjuge_nascimento_casamento' => 'Certidão do Cônjuge (Casam./Nasc.)'
                 ];
                 
                 foreach($documentos_conjuge as $sp_key => $sp_label): 
                 ?>
-                <div class="md:col-span-2 bg-indigo-50/50 border border-indigo-100 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="md:col-span-3 bg-indigo-50/50 border border-indigo-100 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="flex-1">
                         <label class="block text-sm font-semibold text-gray-800 mb-1"><?= $sp_label ?></label>
                         <?php if(!empty($membro[$sp_key])): ?>
@@ -366,10 +361,16 @@ document.addEventListener('DOMContentLoaded', function() {
             containerConjCpf.classList.remove('hidden');
             containerDocsConjuge.classList.remove('hidden');
             
-            if (inputComunhao.value === 'N/A') inputComunhao.value = '';
             if (inputConjNome.value === 'N/A') inputConjNome.value = '';
             if (inputConjCpf.value === 'N/A') inputConjCpf.value = '';
         }
+
+        // Dynamic labels for certs in edit form
+        const labelMain = document.querySelector('label[for="doc_nascimento_casamento"]');
+        const hintMain = document.getElementById('label_hint_doc_nascimento_casamento');
+        const isSingle = ['Solteiro(a)', 'Viúvo(a)', 'Divorciado(a)'].includes(value);
+
+        if (hintMain) hintMain.innerText = isSingle ? 'Anexe a Certidão de Nascimento.' : 'Anexe a Certidão de Casamento.';
     }
 
     if (estadoCivilSelect) {
@@ -453,8 +454,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const fileInputs = [
         'doc_identidade', 'doc_quitacao_eleitoral', 'doc_fiscal_federal', 
         'doc_fiscal_estadual', 'doc_fiscal_municipal', 'doc_situacao_cpf',
+        'doc_nascimento_casamento',
         'doc_conjuge_identidade', 'doc_conjuge_quitacao_eleitoral', 'doc_conjuge_fiscal_federal', 
-        'doc_conjuge_fiscal_estadual', 'doc_conjuge_fiscal_municipal', 'doc_conjuge_situacao_cpf'
+        'doc_conjuge_fiscal_estadual', 'doc_conjuge_fiscal_municipal', 'doc_conjuge_situacao_cpf',
+        'doc_conjuge_nascimento_casamento'
     ];
 
     fileInputs.forEach(id => {

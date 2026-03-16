@@ -1,4 +1,4 @@
-<?php require_once '../app/views/layouts/header.php'; ?>
+<?php require_once '../app/views/layouts/header_form.php'; ?>
 
 <div class="max-w-4xl mx-auto w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden mt-6 mb-12">
     <div class="px-6 py-8">
@@ -209,33 +209,9 @@
             </div>
 
             <div class="md:col-span-3">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Quitação Eleitoral</label>
-                <input type="file" name="doc_quitacao_eleitoral" id="doc_quitacao_eleitoral" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                <div id="preview-doc_quitacao_eleitoral" class="mt-2 hidden"></div>
-            </div>
-
-            <div class="md:col-span-3">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Sist. Fiscal Federal</label>
-                <input type="file" name="doc_fiscal_federal" id="doc_fiscal_federal" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                <div id="preview-doc_fiscal_federal" class="mt-2 hidden"></div>
-            </div>
-
-            <div class="md:col-span-3">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Sist. Fiscal Estadual</label>
-                <input type="file" name="doc_fiscal_estadual" id="doc_fiscal_estadual" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                <div id="preview-doc_fiscal_estadual" class="mt-2 hidden"></div>
-            </div>
-
-            <div class="md:col-span-3">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Sist. Fiscal Municipal</label>
-                <input type="file" name="doc_fiscal_municipal" id="doc_fiscal_municipal" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                <div id="preview-doc_fiscal_municipal" class="mt-2 hidden"></div>
-            </div>
-
-            <div class="md:col-span-3">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Situação no CPF</label>
-                <input type="file" name="doc_situacao_cpf" id="doc_situacao_cpf" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                <div id="preview-doc_situacao_cpf" class="mt-2 hidden"></div>
+                <label class="block text-sm font-medium text-gray-700 mb-1" id="label_doc_nascimento_casamento">Certidão de Nascimento/Casamento</label>
+                <input type="file" name="doc_nascimento_casamento" id="doc_nascimento_casamento" required accept=".pdf,.jpg,.jpeg,.png" class="w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                <div id="preview-doc_nascimento_casamento" class="mt-2 hidden"></div>
             </div>
 
             <!-- Spouse Documents (Hidden by default unless Casado/União Estável) -->
@@ -245,40 +221,28 @@
                     <p class="text-xs text-indigo-600 text-center mb-4">Como você declarou ser casado(a) ou estar em união estável, anexe a documentação do companheiro(a).</p>
                 </div>
 
-                <div class="md:col-span-2">
+                <div class="md:col-span-3">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Doc. Identificação (Cônjuge)</label>
                     <input type="file" name="doc_conjuge_identidade" id="doc_conjuge_identidade" accept=".pdf,.jpg,.jpeg,.png" class="spouse-doc-input w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white file:text-indigo-700 hover:file:bg-gray-50">
                     <div id="preview-doc_conjuge_identidade" class="mt-2 hidden"></div>
                 </div>
 
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Quitação Eleitoral (Cônjuge)</label>
-                    <input type="file" name="doc_conjuge_quitacao_eleitoral" id="doc_conjuge_quitacao_eleitoral" accept=".pdf,.jpg,.jpeg,.png" class="spouse-doc-input w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white file:text-indigo-700 hover:file:bg-gray-50">
-                    <div id="preview-doc_conjuge_quitacao_eleitoral" class="mt-2 hidden"></div>
+                <div class="md:col-span-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Certidão de Casamento/Nascimento (Cônjuge)</label>
+                    <input type="file" name="doc_conjuge_nascimento_casamento" id="doc_conjuge_nascimento_casamento" accept=".pdf,.jpg,.jpeg,.png" class="spouse-doc-input w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white file:text-indigo-700 hover:file:bg-gray-50">
+                    <div id="preview-doc_conjuge_nascimento_casamento" class="mt-2 hidden"></div>
                 </div>
+            </div>
 
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Sist. Fiscal Federal (Cônjuge)</label>
-                    <input type="file" name="doc_conjuge_fiscal_federal" id="doc_conjuge_fiscal_federal" accept=".pdf,.jpg,.jpeg,.png" class="spouse-doc-input w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white file:text-indigo-700 hover:file:bg-gray-50">
-                    <div id="preview-doc_conjuge_fiscal_federal" class="mt-2 hidden"></div>
-                </div>
-
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Sist. Fiscal Estadual (Cônjuge)</label>
-                    <input type="file" name="doc_conjuge_fiscal_estadual" id="doc_conjuge_fiscal_estadual" accept=".pdf,.jpg,.jpeg,.png" class="spouse-doc-input w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white file:text-indigo-700 hover:file:bg-gray-50">
-                    <div id="preview-doc_conjuge_fiscal_estadual" class="mt-2 hidden"></div>
-                </div>
-
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Sist. Fiscal Municipal (Cônjuge)</label>
-                    <input type="file" name="doc_conjuge_fiscal_municipal" id="doc_conjuge_fiscal_municipal" accept=".pdf,.jpg,.jpeg,.png" class="spouse-doc-input w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white file:text-indigo-700 hover:file:bg-gray-50">
-                    <div id="preview-doc_conjuge_fiscal_municipal" class="mt-2 hidden"></div>
-                </div>
-
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Situação no CPF (Cônjuge)</label>
-                    <input type="file" name="doc_conjuge_situacao_cpf" id="doc_conjuge_situacao_cpf" accept=".pdf,.jpg,.jpeg,.png" class="spouse-doc-input w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-white file:text-indigo-700 hover:file:bg-gray-50">
-                    <div id="preview-doc_conjuge_situacao_cpf" class="mt-2 hidden"></div>
+            <!-- Financeiro -->
+            <div class="md:col-span-6 mt-6 pt-4 border-t border-emerald-100 bg-emerald-50/20 p-4 rounded-xl">
+                <h3 class="text-lg font-semibold text-emerald-900 mb-1 text-center">Comprovante de Pagamento</h3>
+                <p class="text-xs text-emerald-700 text-center mb-4">Caso já tenha efetuado o pagamento da taxa associativa (PIX, boleto, etc.), anexe o comprovante abaixo. O recibo definitivo será emitido após conferência pelo responsável pela associação.</p>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Comprovante (PDF ou Imagem) <span class="text-gray-400 font-normal">(Opcional)</span></label>
+                    <input type="file" name="pagamento_comprovante" id="pagamento_comprovante" accept=".pdf,.jpg,.jpeg,.png"
+                        class="w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                    <div id="preview-pagamento_comprovante" class="mt-2 hidden"></div>
                 </div>
             </div>
 
@@ -341,6 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const spouseDocInputs = document.querySelectorAll('.spouse-doc-input');
 
+        const labelCert = document.getElementById('label_doc_nascimento_casamento');
         if (hideFields) {
             containerComunhao.classList.add('hidden');
             containerConjNome.classList.add('hidden');
@@ -350,6 +315,8 @@ document.addEventListener('DOMContentLoaded', function() {
             inputComunhao.value = 'N/A';
             inputConjNome.value = 'N/A';
             inputConjCpf.value = 'N/A';
+            
+            if (labelCert) labelCert.innerText = 'Certidão de Nascimento';
             
             // Remove required attribute from spouse files when hidden
             spouseDocInputs.forEach(input => input.removeAttribute('required'));
@@ -362,6 +329,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (inputComunhao.value === 'N/A') inputComunhao.value = '';
             if (inputConjNome.value === 'N/A') inputConjNome.value = '';
             if (inputConjCpf.value === 'N/A') inputConjCpf.value = '';
+            
+            if (labelCert) labelCert.innerText = 'Certidão de Casamento';
             
             // Require spouse files when visible
             spouseDocInputs.forEach(input => input.setAttribute('required', 'required'));
@@ -447,10 +416,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 5. File Previews
     const fileInputs = [
-        'doc_identidade', 'doc_quitacao_eleitoral', 'doc_fiscal_federal', 
-        'doc_fiscal_estadual', 'doc_fiscal_municipal', 'doc_situacao_cpf',
-        'doc_conjuge_identidade', 'doc_conjuge_quitacao_eleitoral', 'doc_conjuge_fiscal_federal', 
-        'doc_conjuge_fiscal_estadual', 'doc_conjuge_fiscal_municipal', 'doc_conjuge_situacao_cpf'
+        'doc_identidade', 'doc_nascimento_casamento',
+        'doc_conjuge_identidade', 'doc_conjuge_nascimento_casamento',
+        'pagamento_comprovante'
     ];
 
     fileInputs.forEach(id => {
@@ -481,4 +449,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php require_once '../app/views/layouts/footer.php'; ?>
+<?php require_once '../app/views/layouts/footer_form.php'; ?>

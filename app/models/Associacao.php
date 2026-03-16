@@ -44,6 +44,27 @@ class Associacao extends Model
         return $stmt->fetchAll();
     }
 
+    public function search($query = null, $status = null)
+    {
+        $sql = "SELECT * FROM associacoes WHERE 1=1";
+        $params = [];
+
+        if ($query) {
+            $sql .= " AND (nome LIKE :query OR cnpj LIKE :query OR responsavel LIKE :query OR email LIKE :query)";
+            $params['query'] = "%$query%";
+        }
+
+        if ($status) {
+            $sql .= " AND status = :status";
+            $params['status'] = $status;
+        }
+
+        $sql .= " ORDER BY created_at DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
     public function getPending()
     {
         $stmt = $this->db->query("SELECT * FROM associacoes WHERE status = 'pending' ORDER BY created_at DESC");

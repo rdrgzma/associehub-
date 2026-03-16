@@ -1,5 +1,7 @@
 <?php
 session_start();
+date_default_timezone_set('America/Sao_Paulo');
+
 
 require_once '../app/core/Router.php';
 require_once '../app/core/Controller.php';

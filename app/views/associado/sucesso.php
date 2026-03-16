@@ -1,4 +1,4 @@
-<?php require_once '../app/views/layouts/header.php'; ?>
+<?php require_once '../app/views/layouts/header_form.php'; ?>
 
 <div class="max-w-md mx-auto w-full bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden text-center p-8 mt-10">
     <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -10,4 +10,4 @@
     <p class="text-gray-600 mb-6">Você agora é um membro registrado na associação! Bem-vindo.</p>
 </div>
 
-<?php require_once '../app/views/layouts/footer.php'; ?>
+<?php require_once '../app/views/layouts/footer_form.php'; ?>

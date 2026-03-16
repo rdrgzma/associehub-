@@ -9,11 +9,13 @@ class Associado extends Model {
                     estado_civil, forma_comunhao, conjuge_nome, conjuge_cpf,
                     profissao_1, profissao_1_registro, profissao_1_orgao,
                     profissao_2, profissao_2_registro, profissao_2_orgao,
-                    doc_identidade, doc_quitacao_eleitoral, doc_fiscal_federal, 
+                    doc_identidade, doc_quitacao_eleitoral, doc_fiscal_federal,
                     doc_fiscal_estadual, doc_fiscal_municipal, doc_situacao_cpf,
+                    doc_nascimento_casamento,
                     doc_conjuge_identidade, doc_conjuge_quitacao_eleitoral, doc_conjuge_fiscal_federal,
-                    doc_conjuge_fiscal_estadual, doc_conjuge_fiscal_municipal, doc_conjuge_situacao_cpf
-                ) 
+                    doc_conjuge_fiscal_estadual, doc_conjuge_fiscal_municipal, doc_conjuge_situacao_cpf,
+                    doc_conjuge_nascimento_casamento
+                )
                 VALUES (
                     :associacao_id, :nome, :cpf, :email, :telefone, :endereco, :numero, :complemento, :bairro, :cep, :cidade, :estado,
                     :nacionalidade, :naturalidade, :data_nascimento, :idade, :rg, :rg_orgao_emissor,
@@ -23,8 +25,10 @@ class Associado extends Model {
                     :profissao_2, :profissao_2_registro, :profissao_2_orgao,
                     :doc_identidade, :doc_quitacao_eleitoral, :doc_fiscal_federal,
                     :doc_fiscal_estadual, :doc_fiscal_municipal, :doc_situacao_cpf,
+                    :doc_nascimento_casamento,
                     :doc_conjuge_identidade, :doc_conjuge_quitacao_eleitoral, :doc_conjuge_fiscal_federal,
-                    :doc_conjuge_fiscal_estadual, :doc_conjuge_fiscal_municipal, :doc_conjuge_situacao_cpf
+                    :doc_conjuge_fiscal_estadual, :doc_conjuge_fiscal_municipal, :doc_conjuge_situacao_cpf,
+                    :doc_conjuge_nascimento_casamento
                 )";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
@@ -60,24 +64,64 @@ class Associado extends Model {
             'profissao_2' => $data['profissao_2'] ?? null,
             'profissao_2_registro' => $data['profissao_2_registro'] ?? null,
             'profissao_2_orgao' => $data['profissao_2_orgao'] ?? null,
-            'doc_identidade' => $data['doc_identidade'],
-            'doc_quitacao_eleitoral' => $data['doc_quitacao_eleitoral'],
-            'doc_fiscal_federal' => $data['doc_fiscal_federal'],
-            'doc_fiscal_estadual' => $data['doc_fiscal_estadual'],
-            'doc_fiscal_municipal' => $data['doc_fiscal_municipal'],
-            'doc_situacao_cpf' => $data['doc_situacao_cpf'],
+            'doc_identidade' => $data['doc_identidade'] ?? null,
+            'doc_quitacao_eleitoral' => $data['doc_quitacao_eleitoral'] ?? null,
+            'doc_fiscal_federal' => $data['doc_fiscal_federal'] ?? null,
+            'doc_fiscal_estadual' => $data['doc_fiscal_estadual'] ?? null,
+            'doc_fiscal_municipal' => $data['doc_fiscal_municipal'] ?? null,
+            'doc_situacao_cpf' => $data['doc_situacao_cpf'] ?? null,
+            'doc_nascimento_casamento' => $data['doc_nascimento_casamento'] ?? null,
             'doc_conjuge_identidade' => $data['doc_conjuge_identidade'] ?? null,
             'doc_conjuge_quitacao_eleitoral' => $data['doc_conjuge_quitacao_eleitoral'] ?? null,
             'doc_conjuge_fiscal_federal' => $data['doc_conjuge_fiscal_federal'] ?? null,
             'doc_conjuge_fiscal_estadual' => $data['doc_conjuge_fiscal_estadual'] ?? null,
             'doc_conjuge_fiscal_municipal' => $data['doc_conjuge_fiscal_municipal'] ?? null,
-            'doc_conjuge_situacao_cpf' => $data['doc_conjuge_situacao_cpf'] ?? null
+            'doc_conjuge_situacao_cpf' => $data['doc_conjuge_situacao_cpf'] ?? null,
+            'doc_conjuge_nascimento_casamento' => $data['doc_conjuge_nascimento_casamento'] ?? null
         ]);
     }
 
     public function getByAssociacaoId($associacao_id) {
         $stmt = $this->db->prepare("SELECT * FROM associados WHERE associacao_id = :associacao_id ORDER BY created_at DESC");
         $stmt->execute(['associacao_id' => $associacao_id]);
+        return $stmt->fetchAll();
+    }
+
+    public function search($associacao_id, $query = null, $situacao = null) {
+        $sql = "SELECT a.*, n.cargo as cargo_nominata 
+                FROM associados a 
+                LEFT JOIN associacao_nominata n ON a.id = n.associado_id 
+                WHERE a.associacao_id = :associacao_id";
+        
+        $params = ['associacao_id' => $associacao_id];
+
+        if ($query) {
+            // Remove non-numeric characters for document/phone comparison
+            $numericQuery = preg_replace('/[^0-9]/', '', $query);
+            
+            $sql .= " AND (a.nome LIKE :query 
+                        OR a.cpf LIKE :query 
+                        OR a.email LIKE :query 
+                        OR a.telefone LIKE :query";
+            
+            if (!empty($numericQuery)) {
+                $sql .= " OR REPLACE(REPLACE(a.cpf, '.', ''), '-', '') LIKE :numQuery
+                          OR REPLACE(REPLACE(REPLACE(REPLACE(a.telefone, '(', ''), ')', ''), ' ', ''), '-', '') LIKE :numQuery";
+                $params['numQuery'] = "%$numericQuery%";
+            }
+            
+            $sql .= ")";
+            $params['query'] = "%$query%";
+        }
+
+        if ($situacao !== null && $situacao !== '') {
+            $sql .= " AND a.situacao = :situacao";
+            $params['situacao'] = $situacao;
+        }
+
+        $sql .= " ORDER BY a.created_at DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
@@ -115,7 +159,10 @@ class Associado extends Model {
     }
 
     public function findById($id) {
-        $stmt = $this->db->prepare("SELECT * FROM associados WHERE id = :id");
+        $stmt = $this->db->prepare("SELECT a.*, n.cargo as cargo_nominata 
+                                   FROM associados a 
+                                   LEFT JOIN associacao_nominata n ON a.id = n.associado_id 
+                                   WHERE a.id = :id");
         $stmt->execute(['id' => $id]);
         return $stmt->fetch();
     }

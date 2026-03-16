@@ -7,12 +7,25 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 flex flex-col min-h-screen">
-    <header class="bg-white shadow relative">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <!-- This nav handles both admin and manager contexts smoothly using HTTP_REFERER if needed, but we'll use a dynamic back link for safety -->
-            <div class="flex items-center space-x-4">
-                <a href="javascript:history.back()" class="text-gray-600 hover:text-gray-900 font-medium text-sm border border-gray-300 px-3 py-1.5 rounded-lg">&larr; Voltar</a>
-                <h1 class="text-xl font-bold text-gray-900 tracking-tight">Detalhes do Associado</h1>
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <a href="javascript:history.back()" class="text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    </a>
+                    <h1 class="text-lg font-bold text-gray-900 tracking-tight">Detalhes do Associado</h1>
+                </div>
+                <nav class="flex items-center space-x-1 text-sm font-medium">
+                    <a href="/manager/dashboard" class="text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-1.5 rounded-lg transition">Painel da Associação</a>
+                    <a href="/manager/financeiro" class="text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-1.5 rounded-lg transition">Financeiro</a>
+                    <span class="text-gray-300">|</span>
+                    <span class="text-gray-500 text-xs">Olá, <strong class="text-gray-700"><?= htmlspecialchars($_SESSION['manager_nome'] ?? '') ?></strong></span>
+                    <a href="/manager/logout" class="text-red-600 hover:text-red-800 hover:bg-red-50 px-3 py-1.5 rounded-lg transition">Sair</a>
+                </nav>
+            </div>
+        </div>
+    </header>
                 
                 <?php 
                     $membro_id = $membro['id'];
@@ -27,6 +40,7 @@
                         $postDocUrl = "/manager/membros/{$membro_id}/atualizar";
                         $deleteUrl = "/manager/membros/{$membro_id}/deletar";
                     }
+                    $roleBaseUrl = isset($_SESSION['admin_id']) ? '/admin' : '/manager';
 
                     $whatsapp_number = preg_replace('/\D/', '', $membro['telefone']);
                     $first_name = explode(' ', trim($membro['nome']))[0];
@@ -65,7 +79,18 @@
                     <?= strtoupper(substr($membro['nome'], 0, 1)) ?>
                 </div>
                 <div>
-                    <h2 class="text-2xl font-bold"><?= htmlspecialchars($membro['nome']) ?></h2>
+                    <div class="flex items-center space-x-2">
+                        <h2 class="text-2xl font-bold"><?= htmlspecialchars($membro['nome']) ?></h2>
+                        <?php if(!empty($membro['cargo_nominata'])): ?>
+                            <span class="bg-indigo-500 text-[10px] font-bold px-2 py-0.5 rounded border border-indigo-400 uppercase tracking-wider shadow-sm">
+                                <?= htmlspecialchars($membro['cargo_nominata']) ?>
+                            </span>
+                        <?php else: ?>
+                            <span class="bg-indigo-800/50 text-[10px] font-normal px-2 py-0.5 rounded border border-indigo-700/50 uppercase tracking-wider italic">
+                                Membro
+                            </span>
+                        <?php endif; ?>
+                    </div>
                     <p class="text-indigo-200 text-sm">CPF: <?= htmlspecialchars($membro['cpf']) ?> • ID #<?= $membro['id'] ?></p>
                 </div>
             </div>
@@ -167,45 +192,6 @@
                     </div>
                 </div>
 
-                <!-- Endereço e Profissional -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center">
-                        <svg class="w-5 h-5 text-indigo-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                        <h3 class="font-bold text-gray-900">Localização e Carreira</h3>
-                    </div>
-                    <div class="p-6">
-                        <dl class="grid grid-cols-1 gap-6">
-                            <div>
-                                <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Endereço Residencial</dt>
-                                <dd class="mt-1 text-sm text-gray-900">
-                                    <?= htmlspecialchars($membro['endereco'] ?? '') ?>, <?= htmlspecialchars($membro['numero'] ?? 'S/N') ?> 
-                                    <?= $membro['complemento'] ? ' - ' . htmlspecialchars($membro['complemento']) : '' ?><br>
-                                    <?= htmlspecialchars($membro['bairro'] ?? '') ?> • <?= htmlspecialchars($membro['cidade'] ?? '') ?> - <?= htmlspecialchars($membro['estado'] ?? '') ?> • CEP: <?= htmlspecialchars($membro['cep'] ?? '') ?>
-                                </dd>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4">
-                                <div>
-                                    <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Profissão (1)</dt>
-                                    <dd class="mt-1 text-sm text-gray-900"><?= htmlspecialchars($membro['profissao_1'] ?? '---') ?> (<?= htmlspecialchars($membro['profissao_1_orgao'] ?? '') ?>: <?= htmlspecialchars($membro['profissao_1_registro'] ?? '') ?>)</dd>
-                                </div>
-                                <div>
-                                    <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Profissão (2)</dt>
-                                    <dd class="mt-1 text-sm text-gray-900"><?= htmlspecialchars($membro['profissao_2'] ?? '---') ?> <?= $membro['profissao_2_registro'] ? '(' . htmlspecialchars($membro['profissao_2_orgao'] ?? '') . ': ' . htmlspecialchars($membro['profissao_2_registro'] ?? '') . ')' : '' ?></dd>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4">
-                                <div>
-                                    <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Telefone</dt>
-                                    <dd class="mt-1 text-sm text-gray-900 font-bold"><?= htmlspecialchars($membro['telefone']) ?></dd>
-                                </div>
-                                <div>
-                                    <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">E-mail</dt>
-                                    <dd class="mt-1 text-sm text-gray-900"><?= htmlspecialchars($membro['email']) ?></dd>
-                                </div>
-                            </div>
-                        </dl>
-                    </div>
-                </div>
             </div>
 
             <!-- Coluna Sidebar -->
@@ -254,48 +240,151 @@
                     </div>
                 </div>
 
-                <!-- Painel Ficha Assinada -->
-                <div class="bg-indigo-600 rounded-xl shadow-lg border border-indigo-700 overflow-hidden relative mt-12">
-                    <div class="absolute right-0 top-0 opacity-10">
-                        <svg class="h-32 w-32 -mr-8 -mt-8" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6z"></path></svg>
-                    </div>
-                    <div class="px-5 py-4 border-b border-indigo-500/30 relative z-10">
-                        <h3 class="font-bold text-white flex items-center">
+                <!-- Recibo de Pagamento (Last Pago) -->
+                <?php 
+                $lastPaid = null;
+                if(!empty($pagamentos)) {
+                    foreach($pagamentos as $p) {
+                        if($p['status'] === 'pago') {
+                            $lastPaid = $p;
+                            break;
+                        }
+                    }
+                }
+                ?>
+                <?php if($lastPaid): ?>
+                <div class="bg-indigo-600 rounded-xl shadow-lg border border-indigo-500 overflow-hidden transform hover:scale-[1.02] transition-all">
+                    <div class="px-6 py-4 bg-white/10 flex items-center justify-between">
+                        <div class="flex items-center text-white">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                            Ficha de Cadastro
-                        </h3>
+                            <h3 class="font-bold text-white">Último Recibo</h3>
+                        </div>
+                        <span class="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded font-bold uppercase">Pago em <?= date('d/m/Y', strtotime($lastPaid['data_pagamento'])) ?></span>
                     </div>
-                    <div class="p-5 bg-white relative z-10">
-                        <?php if(!empty($membro['doc_ficha_assinada'])): ?>
-                            <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-4 flex justify-between items-center">
-                                <div class="flex items-center text-sm font-semibold text-green-700">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    Ficha Assinada Recebida
-                                </div>
-                                <a href="<?= htmlspecialchars($membro['doc_ficha_assinada']) ?>" target="_blank" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded shadow transition">Visualizar</a>
-                            </div>
-                        <?php else: ?>
-                            <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-xs font-medium text-amber-700 mt-2">
-                                Nenhuma ficha manual assinada foi anexada ao perfil deste associado ainda.
-                            </div>
-                        <?php endif; ?>
-
-                        <?php 
-                            $fichaPostUrl = isset($_SESSION['admin_id']) 
-                                ? "/admin/associados/{$membro['id']}/upload-ficha" 
-                                : "/manager/membros/{$membro['id']}/upload-ficha";
-                        ?>
-                        <form action="<?= $fichaPostUrl ?>" method="POST" enctype="multipart/form-data" class="mt-2">
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Upload de Substituição / Envio</label>
-                            <input type="file" name="doc_ficha_assinada" accept=".pdf,.jpg,.jpeg,.png" class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:border-indigo-100 file:border file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer mb-3">
-                            <button type="submit" class="w-full bg-gray-900 text-white font-bold py-2 rounded-lg text-sm hover:bg-gray-800 transition shadow-sm flex justify-center items-center">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                Salvar Documento
-                            </button>
-                        </form>
+                    <div class="p-6 text-white text-center">
+                        <div class="text-3xl font-black mb-2 text-white">R$ <?= number_format($lastPaid['valor'], 2, ',', '.') ?></div>
+                        <a href="<?= (isset($_SESSION['admin_id']) ? '/admin' : '/manager') ?>/pagamentos/<?= $lastPaid['id'] ?>/recibo" target="_blank" class="block w-full bg-white text-indigo-600 font-bold py-2.5 rounded-lg text-sm hover:bg-indigo-50 transition shadow-md">
+                            GERAR RECIBO FORMAL
+                        </a>
                     </div>
                 </div>
+                <?php endif; ?>
+
+                </div>
+
+        </div>
+
+        <!-- Endereço e Profissional -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center">
+                <svg class="w-5 h-5 text-indigo-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                <h3 class="font-bold text-gray-900">Localização e Carreira</h3>
             </div>
+            <div class="p-6">
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                    <div>
+                        <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Endereço Residencial</dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <?= htmlspecialchars($membro['endereco'] ?? '') ?>, <?= htmlspecialchars($membro['numero'] ?? 'S/N') ?> 
+                            <?= $membro['complemento'] ? ' - ' . htmlspecialchars($membro['complemento']) : '' ?><br>
+                            <?= htmlspecialchars($membro['bairro'] ?? '') ?> • <?= htmlspecialchars($membro['cidade'] ?? '') ?> - <?= htmlspecialchars($membro['estado'] ?? '') ?> • CEP: <?= htmlspecialchars($membro['cep'] ?? '') ?>
+                        </dd>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Telefone</dt>
+                            <dd class="mt-1 text-sm text-gray-900 font-bold"><?= htmlspecialchars($membro['telefone']) ?></dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">E-mail</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?= htmlspecialchars($membro['email']) ?></dd>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4">
+                        <div>
+                            <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Profissão (1)</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?= htmlspecialchars($membro['profissao_1'] ?? '---') ?> (<?= htmlspecialchars($membro['profissao_1_orgao'] ?? '') ?>: <?= htmlspecialchars($membro['profissao_1_registro'] ?? '') ?>)</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Profissão (2)</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?= htmlspecialchars($membro['profissao_2'] ?? '---') ?> <?= $membro['profissao_2_registro'] ? '(' . htmlspecialchars($membro['profissao_2_orgao'] ?? '') . ': ' . htmlspecialchars($membro['profissao_2_registro'] ?? '') . ')' : '' ?></dd>
+                        </div>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Painel Financeiro -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+                <div class="flex items-center text-emerald-600">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zM17 13v-8a2 2 0 00-2-2H9a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2zM5 13v8a2 2 0 002 2h4a2 2 0 002-2v-8a2 2 0 00-2-2H7a2 2 0 00-2 2z"></path></svg>
+                    <h3 class="font-bold text-gray-900">Histórico Financeiro</h3>
+                </div>
+                <button onclick="toggleManualPayModal(true)" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition uppercase flex items-center shadow-sm">
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    Adicionar Lançamento
+                </button>
+            </div>
+            <div class="p-6">
+                <?php if(empty($pagamentos)): ?>
+                    <p class="text-gray-400 text-sm italic text-center py-4">Nenhum registro financeiro encontrado.</p>
+                <?php else: ?>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <?php foreach($pagamentos as $pay): ?>
+                            <div class="flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition shadow-sm bg-white">
+                                <div class="flex flex-col">
+                                    <?php $displayDate = $pay['data_pagamento'] ?: $pay['data_vencimento']; ?>
+                                    <span class="text-xs font-bold text-gray-400 uppercase tracking-widest"><?= date('d/m/Y', strtotime($displayDate)) ?></span>
+                                    <span class="text-sm font-bold text-gray-800">R$ <?= number_format($pay['valor'], 2, ',', '.') ?></span>
+                                    <?php $recLabels = ['uma_vez' => 'Pagamento Único', 'mensal' => 'Mensal', 'semestral' => 'Semestral', 'anual' => 'Anual']; ?>
+                                    <span class="text-[10px] text-gray-500 italic"><?= $recLabels[$pay['recorrencia'] ?? 'uma_vez'] ?? 'Pagamento Único' ?></span>
+                                </div>
+                                <div class="flex flex-col items-end space-y-2">
+                                    <?php 
+                                    $statusColors = [
+                                        'pendente' => 'bg-amber-100 text-amber-700',
+                                        'pago' => 'bg-green-100 text-green-700',
+                                        'cancelado' => 'bg-red-100 text-red-700'
+                                    ];
+                                    ?>
+                                    <span class="<?= $statusColors[$pay['status']] ?> px-2 py-0.5 rounded text-[10px] font-bold uppercase whitespace-nowrap">
+                                        <?= $pay['status'] ?>
+                                    </span>
+                                    
+                                    <div class="flex items-center space-x-2">
+                                        <?php 
+                                        $roleBaseUrl = isset($_SESSION['admin_id']) ? '/admin' : '/manager';
+                                        ?>
+                                        <?php if($pay['status'] === 'pendente'): ?>
+                                            <button onclick="openConfirmModal(<?= $pay['id'] ?>, <?= $pay['valor'] ?>)" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-bold px-2 py-1 rounded transition uppercase">
+                                                Confirmar
+                                            </button>
+                                        <?php elseif($pay['status'] === 'pago' && $pay['recorrencia'] !== 'uma_vez'): ?>
+                                            <form action="<?= $roleBaseUrl ?>/pagamentos/<?= $pay['id'] ?>/gerar-proxima" method="POST" onsubmit="return confirm('Deseja gerar a próxima cobrança agora?')">
+                                                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[9px] font-bold px-2 py-1 rounded transition uppercase">
+                                                    Próxima
+                                                </button>
+                                            </form>
+                                        <?php endif; ?>
+
+                                        <?php if($pay['status'] === 'pago'): ?>
+                                            <a href="<?= (isset($_SESSION['admin_id']) ? '/admin' : '/manager') ?>/pagamentos/<?= $pay['id'] ?>/recibo" target="_blank" class="text-indigo-600 hover:text-indigo-800" title="Ver Recibo">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                            </a>
+                                        <?php endif; ?>
+
+                                        <?php if($pay['comprovante']): ?>
+                                            <a href="/manager/pagamentos/<?= $pay['id'] ?>/download" class="text-indigo-600 hover:text-indigo-800" title="Baixar Comprovante">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                            </a>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
         </div>
 
         <!-- Documentos em Grade -->
@@ -308,103 +397,214 @@
             </div>
             
             <?php
-            $documentos = [
+            // Group documents into Attached (Files) and Regularity (Research)
+            $docs_anexados = [
                 'doc_identidade' => 'Cópia do Documento de Identificação',
+                'doc_nascimento_casamento' => 'Certidão de Nascimento/Casamento'
+            ];
+
+            $docs_regularidade = [
+                'doc_situacao_cpf' => 'Comprovante de Situação Cadastral no CPF',
                 'doc_quitacao_eleitoral' => 'Comprovante de Quitação Eleitoral',
                 'doc_fiscal_federal' => 'Certidão de Situação Fiscal Federal',
                 'doc_fiscal_estadual' => 'Certidão de Situação Fiscal Estadual',
-                'doc_fiscal_municipal' => 'Certidão de Situação Fiscal Municipal',
-                'doc_situacao_cpf' => 'Comprovante de Situação Cadastral no CPF'
+                'doc_fiscal_municipal' => 'Certidão de Situação Fiscal Municipal'
+            ];
+
+            $consultaLinks = [
+                'doc_quitacao_eleitoral' => 'https://www.tse.jus.br/servicos-eleitorais/autoatendimento-eleitoral#/atendimento-eleitor',
+                'doc_fiscal_federal' => 'https://servicos.receita.fazenda.gov.br/Servicos/CPF/ImpressaoComprovante/ConsultaImpressao.asp',
+                'doc_fiscal_estadual' => 'https://www.sefaz.rs.gov.br/sat/CertidaoSitFiscalSolic.aspx',
+                'doc_fiscal_municipal' => 'https://siat.procempa.com.br/siat/ArrSolicitarCertidaoGeralDebTributarios_Internet.do',
+                'doc_situacao_cpf' => 'https://servicos.receita.fazenda.gov.br/servicos/cpf/consultasituacao/consultapublica.asp'
             ];
             ?>
             <form action="<?= $postDocUrl ?>" method="POST">
                 <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <?php foreach($documentos as $key => $label): ?>
-                            <div class="border border-gray-200 rounded-xl p-4 bg-gray-50/30 flex flex-col h-full">
-                                <div class="flex justify-between items-start mb-4">
-                                    <div class="flex items-center">
-                                        <div class="h-8 w-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 mr-3">
-                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <!-- SECTION: Attached Documents (Member) -->
+                    <div class="mb-6">
+                        <h4 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.414a4 4 0 00-5.656-5.656l-6.415 6.414a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                            Documentos Anexados (Titular)
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <?php foreach($docs_anexados as $key => $label): ?>
+                                <div class="border border-gray-200 rounded-xl p-4 bg-gray-50/30 flex flex-col h-full">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div class="flex items-center">
+                                            <div class="h-8 w-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 mr-3">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                            </div>
+                                            <span class="text-sm font-bold text-gray-800" id="label_<?= $key ?>"><?= $label ?></span>
                                         </div>
-                                        <span class="text-sm font-bold text-gray-800"><?= $label ?></span>
-                                    </div>
-                                    <?php if(!empty($membro[$key])): ?>
-                                        <a href="<?= htmlspecialchars($membro[$key]) ?>" target="_blank" class="text-indigo-600 hover:text-indigo-800 p-1 rounded-md hover:bg-indigo-50 transition" title="Ver Documento">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                                        </a>
-                                    <?php endif; ?>
-                                </div>
-
-                                <div class="mt-auto space-y-3">
-                                    <div class="flex items-center justify-between">
-                                        <label class="inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" name="<?= $key ?>_status" value="1" <?= ($membro[$key.'_status'] ?? 0) ? 'checked' : '' ?> class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                                            <span class="ml-2 text-xs font-bold text-gray-700">Documento Válido</span>
-                                        </label>
-                                        <?php if(empty($membro[$key])): ?>
-                                            <span class="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded border border-red-100">PENDENTE</span>
+                                        <?php if(!empty($membro[$key])): ?>
+                                            <a href="<?= htmlspecialchars($membro[$key]) ?>" target="_blank" class="text-indigo-600 hover:text-indigo-800 p-1 rounded-md hover:bg-indigo-50 transition" title="Ver Documento">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                            </a>
                                         <?php endif; ?>
                                     </div>
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Data de Validade</label>
-                                        <input type="date" name="<?= $key ?>_validade" value="<?= htmlspecialchars($membro[$key.'_validade'] ?? '') ?>" class="w-full px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm">
+
+                                    <div class="mt-auto space-y-3">
+                                        <div class="flex items-center justify-between">
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" name="<?= $key ?>_status" value="1" <?= ($membro[$key.'_status'] ?? 0) ? 'checked' : '' ?> class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                                <span class="ml-2 text-xs font-bold text-gray-700">Documento Válido</span>
+                                            </label>
+                                            <?php if(empty($membro[$key])): ?>
+                                                <span class="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded border border-red-100">PENDENTE</span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Data de Validade</label>
+                                            <input type="date" name="<?= $key ?>_validade" value="<?= htmlspecialchars($membro[$key.'_validade'] ?? '') ?>" class="w-full px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm">
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        <?php endforeach; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <!-- SECTION: Regularity Checks (Member) -->
+                    <div class="mb-6">
+                        <h4 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            Consultas de Regularidade (Titular)
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <?php foreach($docs_regularidade as $key => $label): ?>
+                                <div class="border border-gray-200 rounded-xl p-4 bg-gray-50/10 flex flex-col h-full border-dashed">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div class="flex items-center">
+                                            <div class="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 mr-3">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                            </div>
+                                            <span class="text-sm font-bold text-gray-700"><?= $label ?></span>
+                                            <?php if(isset($consultaLinks[$key])): ?>
+                                                <a href="<?= $consultaLinks[$key] ?>" target="_blank" class="ml-1.5 text-indigo-500 hover:text-indigo-700 transition transform hover:scale-110" title="Consultar Situação Oficial">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="3 3 18 18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                                </a>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-auto space-y-3">
+                                        <div class="flex items-center justify-between">
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" name="<?= $key ?>_status" value="1" <?= ($membro[$key.'_status'] ?? 0) ? 'checked' : '' ?> class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500">
+                                                <span class="ml-2 text-xs font-bold text-gray-700">Situação Regular</span>
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Data da Consulta</label>
+                                            <input type="date" name="<?= $key ?>_validade" value="<?= htmlspecialchars($membro[$key.'_validade'] ?? '') ?>" class="w-full px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm">
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
 
                     <!-- Spouse Documents Validation Container -->
                     <?php if (in_array($membro['estado_civil'], ['Casado(a)', 'União Estável'])): 
-                    $documentos_conjuge = [
+                    $docs_conjuge_anexados = [
                         'doc_conjuge_identidade' => 'Identificação do Cônjuge',
+                        'doc_conjuge_nascimento_casamento' => 'Certidão do Cônjuge'
+                    ];
+
+                    $docs_conjuge_regularidade = [
+                        'doc_conjuge_situacao_cpf' => 'Situação no CPF do Cônjuge',
                         'doc_conjuge_quitacao_eleitoral' => 'Quitação Eleitoral do Cônjuge',
                         'doc_conjuge_fiscal_federal' => 'Sit. Fiscal Federal do Cônjuge',
                         'doc_conjuge_fiscal_estadual' => 'Sit. Fiscal Estadual do Cônjuge',
-                        'doc_conjuge_fiscal_municipal' => 'Sit. Fiscal Municipal do Cônjuge',
-                        'doc_conjuge_situacao_cpf' => 'Situação no CPF do Cônjuge'
+                        'doc_conjuge_fiscal_municipal' => 'Sit. Fiscal Municipal do Cônjuge'
                     ];
                     ?>
                     <hr class="my-8 border-t border-gray-200">
-                    <div class="mb-4">
-                        <h4 class="text-md font-bold text-gray-800">Validação Documental do Cônjuge</h4>
-                        <p class="text-xs text-gray-500">Documentos anexados do companheiro(a).</p>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <?php foreach($documentos_conjuge as $sp_key => $sp_label): ?>
-                            <div class="border border-indigo-100 rounded-xl p-4 bg-indigo-50/20 flex flex-col h-full">
-                                <div class="flex justify-between items-start mb-4">
-                                    <div class="flex items-center">
-                                        <div class="h-8 w-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 mr-3">
-                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    
+                    <!-- SECTION: Attached Documents (Spouse) -->
+                    <div class="mb-6">
+                        <h4 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354l1.1-.63a2 2 0 012.515.228l.417.416a2 2 0 01-.228 2.515l-.63 1.1A2 2 0 0113 9H11a2 2 0 01-2.174-1.927l-.63-1.1a2 2 0 01-.228-2.515l.417-.416a2 2 0 012.515-.228l1.1.63zM15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            Documentos Anexados (Cônjuge)
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <?php foreach($docs_conjuge_anexados as $sp_key => $sp_label): ?>
+                                <div class="border border-indigo-100 rounded-xl p-4 bg-indigo-50/20 flex flex-col h-full">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div class="flex items-center">
+                                            <div class="h-8 w-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 mr-3">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                            </div>
+                                            <span class="text-sm font-bold text-gray-800" id="label_<?= $sp_key ?>"><?= $sp_label ?></span>
                                         </div>
-                                        <span class="text-sm font-bold text-gray-800"><?= $sp_label ?></span>
-                                    </div>
-                                    <?php if(!empty($membro[$sp_key])): ?>
-                                        <a href="<?= htmlspecialchars($membro[$sp_key]) ?>" target="_blank" class="text-indigo-600 hover:text-indigo-800 p-1 rounded-md hover:bg-indigo-50 transition" title="Ver Documento">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                                        </a>
-                                    <?php endif; ?>
-                                </div>
-
-                                <div class="mt-auto space-y-3">
-                                    <div class="flex items-center justify-between">
-                                        <label class="inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" name="<?= $sp_key ?>_status" value="1" <?= ($membro[$sp_key.'_status'] ?? 0) ? 'checked' : '' ?> class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                                            <span class="ml-2 text-xs font-bold text-gray-700">Documento Válido</span>
-                                        </label>
-                                        <?php if(empty($membro[$sp_key])): ?>
-                                            <span class="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded border border-red-100">PENDENTE</span>
+                                        <?php if(!empty($membro[$sp_key])): ?>
+                                            <a href="<?= htmlspecialchars($membro[$sp_key]) ?>" target="_blank" class="text-indigo-600 hover:text-indigo-800 p-1 rounded-md hover:bg-indigo-50 transition" title="Ver Documento">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                            </a>
                                         <?php endif; ?>
                                     </div>
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Data de Validade</label>
-                                        <input type="date" name="<?= $sp_key ?>_validade" value="<?= htmlspecialchars($membro[$sp_key.'_validade'] ?? '') ?>" class="w-full px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm">
+
+                                    <div class="mt-auto space-y-3">
+                                        <div class="flex items-center justify-between">
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" name="<?= $sp_key ?>_status" value="1" <?= ($membro[$sp_key.'_status'] ?? 0) ? 'checked' : '' ?> class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                                                <span class="ml-2 text-xs font-bold text-gray-700">Documento Válido</span>
+                                            </label>
+                                            <?php if(empty($membro[$sp_key])): ?>
+                                                <span class="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded border border-red-100">PENDENTE</span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Data de Validade</label>
+                                            <input type="date" name="<?= $sp_key ?>_validade" value="<?= htmlspecialchars($membro[$sp_key.'_validade'] ?? '') ?>" class="w-full px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm">
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        <?php endforeach; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <!-- SECTION: Regularity Checks (Spouse) -->
+                    <div class="mb-6">
+                        <h4 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            Consultas de Regularidade (Cônjuge)
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <?php foreach($docs_conjuge_regularidade as $sp_key => $sp_label): ?>
+                                <div class="border border-indigo-100 rounded-xl p-4 bg-indigo-50/10 flex flex-col h-full border-dashed">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div class="flex items-center">
+                                            <div class="h-8 w-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-400 mr-3">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                            </div>
+                                            <span class="text-sm font-bold text-gray-800"><?= $sp_label ?></span>
+                                            <?php 
+                                                $baseKey = str_replace('doc_conjuge_', 'doc_', $sp_key);
+                                                if(isset($consultaLinks[$baseKey])): 
+                                            ?>
+                                                <a href="<?= $consultaLinks[$baseKey] ?>" target="_blank" class="ml-1.5 text-indigo-500 hover:text-indigo-700 transition transform hover:scale-110" title="Consultar Situação Oficial">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="3 3 18 18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                                </a>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-auto space-y-3">
+                                        <div class="flex items-center justify-between">
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" name="<?= $sp_key ?>_status" value="1" <?= ($membro[$sp_key.'_status'] ?? 0) ? 'checked' : '' ?> class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500">
+                                                <span class="ml-2 text-xs font-bold text-gray-700">Situação Regular</span>
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Data da Consulta</label>
+                                            <input type="date" name="<?= $sp_key ?>_validade" value="<?= htmlspecialchars($membro[$sp_key.'_validade'] ?? '') ?>" class="w-full px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm">
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -453,17 +653,122 @@
         </div>
     </div>
 
+    <!-- Confirm Payment Modal -->
+    <div id="confirmModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="toggleConfirmModal(false)"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-indigo-100">
+                <form id="confirmForm" method="POST" enctype="multipart/form-data">
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10">
+                                <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">Confirmar Pagamento</h3>
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-500">
+                                        Confirmando o pagamento de <span class="font-bold text-emerald-600">R$ <span id="confirmValueDisplay"></span></span> para este associado.
+                                    </p>
+                                    <div class="mt-4">
+                                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Comprovante (Opcional)</label>
+                                        <input type="file" name="comprovante" accept=".pdf,.jpg,.jpeg,.png" class="w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3">
+                        <button type="submit" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-bold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm">
+                            Confirmar Pagamento
+                        </button>
+                        <button type="button" onclick="toggleConfirmModal(false)" class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:text-sm">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function toggleDeleteModal(show) {
-            const modal = document.getElementById('deleteModal');
-            if (show) {
-                modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            } else {
+        function openConfirmModal(id, valor) {
+            const modal = document.getElementById('confirmModal');
+            const form = document.getElementById('confirmForm');
+            const display = document.getElementById('confirmValueDisplay');
+            
+            form.action = '<?= $roleBaseUrl ?>/pagamentos/' + id + '/confirmar';
+            display.innerText = valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+            
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function toggleConfirmModal(show) {
+            const modal = document.getElementById('confirmModal');
+            if (!show) {
                 modal.classList.add('hidden');
                 document.body.style.overflow = 'auto';
             }
         }
+
+        function toggleManualPayModal(show) {
+            const modal = document.getElementById('manualPayModal');
+            if (show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        }
+        // Script for dynamic labels based on marital status
+        document.addEventListener('DOMContentLoaded', function() {
+            // In the member view, the "estado_civil" is a text display, but we can read it to set initial document labels
+            const maritalStatus = "<?= $membro['estado_civil'] ?? '' ?>";
+
+            function updateLabels(status) {
+                const labelMain = document.getElementById('label_doc_nascimento_casamento');
+                const labelSpouse = document.getElementById('label_doc_conjuge_nascimento_casamento');
+                const isSingle = ['Solteiro(a)', 'Viúvo(a)', 'Divorciado(a)'].includes(status);
+
+                if (labelMain) labelMain.innerText = isSingle ? 'Certidão de Nascimento' : 'Certidão de Casamento';
+                if (labelSpouse) labelSpouse.innerText = isSingle ? 'Certidão de Nascimento do Cônjuge' : 'Certidão de Casamento do Cônjuge';
+            }
+
+            updateLabels(maritalStatus);
+        });
     </script>
+    <!-- Modal Lançamento Manual -->
+    <div id="manualPayModal" class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-gray-100">
+            <div class="px-6 py-4 bg-indigo-600 text-white flex justify-between items-center">
+                <h3 class="font-bold">Novo Lançamento Manual</h3>
+                <button onclick="toggleManualPayModal(false)" class="text-white/80 hover:text-white">&times;</button>
+            </div>
+            <div class="p-6">
+                <form action="<?= $roleBaseUrl ?>/membros/<?= $membro['id'] ?>/pagamento-manual" method="POST" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor (R$)</label>
+                        <input type="text" name="valor" placeholder="0,00" required class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Data de Vencimento</label>
+                        <input type="date" name="data_vencimento" value="<?= date('Y-m-d') ?>" required class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Recorrência</label>
+                        <select name="recorrencia" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="uma_vez">Pagamento Único</option>
+                            <option value="mensal">Mensal</option>
+                            <option value="semestral">Semestral</option>
+                            <option value="anual">Anual</option>
+                        </select>
+                    </div>
+                    <div class="flex space-x-3 pt-2">
+                        <button type="button" onclick="toggleManualPayModal(false)" class="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition">Cancelar</button>
+                        <button type="submit" class="flex-1 px-4 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition">Salvar Lançamento</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

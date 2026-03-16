@@ -8,6 +8,39 @@
     <a href="/admin/dashboard" class="text-gray-600 hover:text-gray-900 font-medium text-sm border border-gray-300 px-3 py-1.5 rounded-lg">&larr; Voltar ao Dashboard</a>
 </div>
 
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+    <form action="/admin/associacoes" method="GET" class="flex flex-col md:flex-row gap-4">
+        <div class="flex-1">
+            <label for="search" class="block text-xs font-medium text-gray-500 mb-1">Pesquisar Associação</label>
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </span>
+                <input type="text" name="search" id="search" value="<?= htmlspecialchars($filters['search'] ?? '') ?>" placeholder="Nome, CNPJ, Responsável ou Email..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+        </div>
+        <div class="w-full md:w-48">
+            <label for="status" class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+            <select name="status" id="status" class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                <option value="">Todos os Status</option>
+                <option value="pending" <?= ($filters['status'] ?? '') === 'pending' ? 'selected' : '' ?>>Pendente</option>
+                <option value="approved" <?= ($filters['status'] ?? '') === 'approved' ? 'selected' : '' ?>>Aprovada</option>
+                <option value="rejected" <?= ($filters['status'] ?? '') === 'rejected' ? 'selected' : '' ?>>Rejeitada</option>
+            </select>
+        </div>
+        <div class="flex items-end gap-2">
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg text-sm transition shadow-sm">
+                Filtrar
+            </button>
+            <?php if (!empty($filters['search']) || !empty($filters['status'])): ?>
+                <a href="/admin/associacoes" class="bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2 px-4 rounded-lg text-sm transition">
+                    Limpar
+                </a>
+            <?php endif; ?>
+        </div>
+    </form>
+</div>
+
 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
     <?php if(empty($associacoes)): ?>
         <div class="p-6 text-center text-gray-500">Nenhuma associação cadastrada no momento.</div>
@@ -52,11 +85,22 @@
                                     $link = "http://" . $_SERVER['HTTP_HOST'] . "/cadastro/" . $assoc['token']; 
                                 ?>
                                 <div class="flex flex-col space-y-2">
-                                    <div class="flex items-center space-x-2">
-                                        <input type="text" readonly value="<?= $link ?>" class="text-xs bg-gray-50 border border-gray-200 rounded px-2 py-1 w-48 text-gray-500 outline-none">
-                                        <button type="button" onclick="navigator.clipboard.writeText('<?= $link ?>'); alert('Link copiado!')" class="text-indigo-600 hover:text-indigo-800 text-xs font-semibold" title="Copiar Link">
-                                            Copiar Link
+                                    <div class="flex items-center space-x-1">
+                                        <input type="text" readonly value="<?= $link ?>" 
+                                               id="regLink-<?= $assoc['id'] ?>"
+                                               class="text-xs bg-gray-50 border border-gray-200 rounded px-2 py-1 w-40 text-gray-500 outline-none truncate">
+                                        <!-- Copy button -->
+                                        <button type="button"
+                                                onclick="copyAssocLink('<?= $assoc['id'] ?>', '<?= addslashes($link) ?>')"
+                                                class="text-indigo-600 hover:text-indigo-800 p-1.5 rounded hover:bg-indigo-50 transition" title="Copiar Link">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
                                         </button>
+                                        <!-- WhatsApp share button -->
+                                        <?php $waMsgAssoc = urlencode("Olá! Clique no link para se cadastrar como membro em " . $assoc['nome'] . ": {$link}"); ?>
+                                        <a href="https://wa.me/?text=<?= $waMsgAssoc ?>" target="_blank"
+                                           class="text-green-600 hover:text-green-800 p-1.5 rounded hover:bg-green-50 transition" title="Compartilhar via WhatsApp">
+                                            <svg class="w-3.5 h-3.5" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.657 4.802 1.803 6.818L2 30l7.379-1.779A13.946 13.946 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.5a11.44 11.44 0 01-5.832-1.601l-.418-.248-4.379 1.055 1.082-4.27-.271-.437A11.44 11.44 0 014.5 16C4.5 9.597 9.597 4.5 16 4.5S27.5 9.597 27.5 16 22.403 27.5 16 27.5zm6.27-8.567c-.344-.172-2.037-1.004-2.353-1.12-.316-.115-.547-.172-.778.172-.23.344-.893 1.12-1.095 1.35-.2.23-.402.258-.746.086-.344-.172-1.451-.535-2.764-1.705-1.021-.91-1.71-2.035-1.911-2.379-.2-.344-.021-.53.15-.702.154-.154.344-.402.516-.603.172-.2.23-.344.344-.574.115-.23.058-.43-.028-.603-.086-.172-.778-1.876-1.066-2.57-.28-.672-.566-.58-.778-.59l-.66-.012c-.23 0-.603.086-.92.43-.316.344-1.208 1.18-1.208 2.878s1.237 3.34 1.409 3.57c.172.23 2.435 3.717 5.898 5.211.824.355 1.467.567 1.969.727.827.264 1.58.226 2.174.137.663-.1 2.037-.832 2.325-1.635.287-.803.287-1.491.2-1.635-.085-.143-.316-.23-.66-.402z"/></svg>
+                                        </a>
                                     </div>
                                     <div class="flex items-center space-x-2">
                                         <span class="text-xs text-gray-600 font-medium whitespace-nowrap">Senha Manager:</span>
@@ -278,6 +322,20 @@
             submitReveal();
         }
     });
+
+    function copyAssocLink(id, url) {
+        navigator.clipboard.writeText(url).then(() => {
+            const toast = document.getElementById('assocCopyToast');
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 2500);
+        });
+    }
 </script>
+
+<!-- Toast notification for copy link -->
+<div id="assocCopyToast" class="hidden fixed bottom-6 right-6 bg-gray-900 text-white text-sm font-medium px-4 py-2.5 rounded-xl shadow-xl z-50 flex items-center space-x-2">
+    <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+    <span>Link copiado!</span>
+</div>
 
 <?php require_once '../app/views/layouts/footer.php'; ?>

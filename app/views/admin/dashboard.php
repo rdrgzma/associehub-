@@ -1,11 +1,47 @@
 <?php require_once '../app/views/layouts/header.php'; ?>
 
-<div class="mb-6 flex justify-between items-end">
+<div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
     <div>
         <h1 class="text-2xl font-bold text-gray-900">Dashboard Geral</h1>
         <p class="text-sm text-gray-500 mt-1">Bem-vindo, <?= htmlspecialchars($_SESSION['admin_nome'] ?? 'Administrador') ?></p>
     </div>
+    <!-- Link de Cadastro de Nova Associação -->
+    <?php
+        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
+        $host = $_SERVER['HTTP_HOST'];
+        $novaAssocLink = "{$protocol}://{$host}/nova-associacao";
+        $waMsg = urlencode("Olá! Acesse o link para cadastrar sua associação na plataforma AssocieHub: {$novaAssocLink}");
+    ?>
+    <div class="flex-grow max-w-md w-full bg-indigo-50 border border-indigo-100 rounded-xl p-4">
+        <label class="block text-xs font-bold text-indigo-900 uppercase tracking-widest mb-2">Link de Cadastro de Nova Associação</label>
+        <div class="flex items-center space-x-2">
+            <input type="text" readonly value="<?= $novaAssocLink ?>" id="adminAssocLink"
+                   class="flex-grow bg-white border border-indigo-200 rounded-lg px-3 py-2 text-sm text-indigo-700 font-medium focus:outline-none truncate">
+            <button onclick="copyAdminLink()" class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition shadow-sm flex-shrink-0" title="Copiar Link">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+            </button>
+            <a href="https://wa.me/?text=<?= $waMsg ?>" target="_blank"
+               class="bg-green-500 hover:bg-green-600 text-white p-2 rounded-lg transition shadow-sm flex-shrink-0" title="Compartilhar via WhatsApp">
+                <svg class="w-4 h-4" viewBox="0 0 32 32" fill="currentColor"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.657 4.802 1.803 6.818L2 30l7.379-1.779A13.946 13.946 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.5a11.44 11.44 0 01-5.832-1.601l-.418-.248-4.379 1.055 1.082-4.27-.271-.437A11.44 11.44 0 014.5 16C4.5 9.597 9.597 4.5 16 4.5S27.5 9.597 27.5 16 22.403 27.5 16 27.5zm6.27-8.567c-.344-.172-2.037-1.004-2.353-1.12-.316-.115-.547-.172-.778.172-.23.344-.893 1.12-1.095 1.35-.2.23-.402.258-.746.086-.344-.172-1.451-.535-2.764-1.705-1.021-.91-1.71-2.035-1.911-2.379-.2-.344-.021-.53.15-.702.154-.154.344-.402.516-.603.172-.2.23-.344.344-.574.115-.23.058-.43-.028-.603-.086-.172-.778-1.876-1.066-2.57-.28-.672-.566-.58-.778-.59l-.66-.012c-.23 0-.603.086-.92.43-.316.344-1.208 1.18-1.208 2.878s1.237 3.34 1.409 3.57c.172.23 2.435 3.717 5.898 5.211.824.355 1.467.567 1.969.727.827.264 1.58.226 2.174.137.663-.1 2.037-.832 2.325-1.635.287-.803.287-1.491.2-1.635-.085-.143-.316-.23-.66-.402z"/></svg>
+            </a>
+        </div>
+        <p class="text-[10px] text-indigo-500 mt-2 font-medium italic">Compartilhe com gestores para cadastrar novas associações na plataforma.</p>
+    </div>
 </div>
+<!-- Toast for admin link copy -->
+<div id="adminCopyToast" class="hidden fixed bottom-6 right-6 bg-gray-900 text-white text-sm font-medium px-4 py-2.5 rounded-xl shadow-xl z-50 flex items-center space-x-2">
+    <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+    <span>Link copiado!</span>
+</div>
+<script>
+    function copyAdminLink() {
+        navigator.clipboard.writeText(document.getElementById('adminAssocLink').value).then(() => {
+            const t = document.getElementById('adminCopyToast');
+            t.classList.remove('hidden');
+            setTimeout(() => t.classList.add('hidden'), 2500);
+        });
+    }
+</script>
 
 <!-- KPI Metrics -->
 <?php if(isset($_SESSION['success_msg'])): ?>
@@ -123,6 +159,30 @@
         <dd class="text-3xl font-bold text-emerald-600"><?= $metrics['membros_ativos'] ?></dd>
     </div>
 </div>
+
+<!-- Financial Module Shortcut -->
+<div class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="md:col-span-2 bg-gradient-to-r from-indigo-600 to-emerald-600 rounded-xl shadow-lg p-6 text-white flex justify-between items-center transition hover:scale-[1.01]">
+        <div>
+            <h3 class="text-sm font-bold uppercase tracking-widest opacity-80 mb-1">Gestão Financeira Global</h3>
+            <p class="text-2xl font-black leading-none">Módulo de Pagamentos e Cobranças</p>
+            <p class="mt-2 text-xs opacity-90">Gerencie todos os pagamentos de associações e seus respectivos membros em um único lugar.</p>
+        </div>
+        <a href="/admin/financeiro" class="bg-white text-indigo-700 hover:bg-indigo-50 font-black py-4 px-8 rounded-2xl shadow-xl transition-all transform active:scale-95">
+            ACESSAR PAINEL
+        </a>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-sm border border-indigo-100 p-6 flex flex-col justify-center border-l-4 border-l-emerald-500">
+        <dt class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Receita Confirmada</dt>
+        <dd class="text-2xl font-black text-emerald-600">
+            R$ <?= number_format($financeiroMetrics['total_geral'] ?? 0, 2, ',', '.') ?>
+        </dd>
+    </div>
+</div>
+
+
+<!-- Pending Associations -->
 
 <!-- Pending Associations -->
 <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 overflow-hidden">

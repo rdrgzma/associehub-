@@ -1,8 +1,9 @@
 <?php
 
 // Front routes
-$router->get('/', ['AssociacaoController', 'cadastroForm']);
-$router->post('/cadastro', ['AssociacaoController', 'registrar']);
+$router->get('/', ['AssociacaoController', 'home']);
+$router->get('/nova-associacao', ['AssociacaoController', 'cadastroForm']);
+$router->post('/nova-associacao', ['AssociacaoController', 'registrar']);
 $router->get('/sucesso', ['AssociacaoController', 'sucesso']);
 
 // Member registration routes
@@ -34,6 +35,17 @@ $router->post('/admin/associados/{id}/atualizar-status-global', ['AdminControlle
 $router->get('/admin/associados/{id}/editar', ['AdminController', 'editarMembro']);
 $router->post('/admin/associados/{id}/editar', ['AdminController', 'salvarMembro']);
 $router->post('/admin/associados/{id}/deletar', ['AdminController', 'deletarMembro']);
+$router->get('/admin/associacoes/{id}/nominata', ['AdminController', 'nominata']);
+$router->post('/admin/associacoes/{id}/nominata/salvar', ['AdminController', 'salvarNominata']);
+$router->post('/admin/associacoes/{id}/nominata/adicionar', ['AdminController', 'adicionarCargo']);
+$router->post('/admin/associacoes/{id}/nominata/remover/{cargoId}', ['AdminController', 'removerCargo']);
+$router->get('/admin/associacoes/{id}/imprimir', ['AdminController', 'imprimirLista']);
+$router->get('/admin/financeiro', ['AdminController', 'financeiro']);
+$router->post('/admin/financeiro/{id}/cancelar', ['AdminController', 'cancelarPagamento']);
+$router->get('/admin/pagamentos/{id}/recibo', ['ManagerController', 'recibo']);
+$router->post('/admin/pagamentos/{id}/confirmar', ['ManagerController', 'confirmarPagamento']);
+$router->post('/admin/pagamentos/{id}/gerar-proxima', ['ManagerController', 'gerarNovaCobranca']);
+$router->post('/admin/membros/{id}/pagamento-manual', ['ManagerController', 'registrarPagamentoManual']);
 
 // Admin User Management
 $router->get('/admin/usuarios', ['AdminController', 'usuarios']);
@@ -49,6 +61,7 @@ $router->post('/manager/login', ['ManagerController', 'login']);
 $router->get('/manager/logout', ['ManagerController', 'logout']);
 $router->get('/manager/dashboard', ['ManagerController', 'dashboard']);
 $router->post('/manager/alterar-senha', ['ManagerController', 'alterarSenha']);
+$router->get('/manager/membros/imprimir', ['ManagerController', 'imprimirLista']);
 $router->get('/manager/membros/{id}', ['ManagerController', 'membro']);
 $router->post('/manager/membros/{id}/atualizar', ['ManagerController', 'atualizarMembro']);
 $router->post('/manager/membros/{id}/upload-ficha', ['ManagerController', 'uploadFicha']);
@@ -57,3 +70,15 @@ $router->get('/manager/membros/{id}/ficha', ['ManagerController', 'ficha']);
 $router->get('/manager/membros/{id}/editar', ['ManagerController', 'editarMembro']);
 $router->post('/manager/membros/{id}/editar', ['ManagerController', 'salvarMembro']);
 $router->post('/manager/membros/{id}/deletar', ['ManagerController', 'deletarMembro']);
+$router->post('/manager/pagamentos/{id}/confirmar', ['ManagerController', 'confirmarPagamento']);
+$router->post('/manager/pagamentos/{id}/gerar-proxima', ['ManagerController', 'gerarNovaCobranca']);
+$router->get('/manager/pagamentos/{id}/download', ['ManagerController', 'downloadComprovante']);
+$router->get('/manager/pagamentos/{id}/recibo', ['ManagerController', 'recibo']);
+$router->post('/manager/membros/{id}/pagamento-manual', ['ManagerController', 'registrarPagamentoManual']);
+// Nominata Management
+$router->get('/manager/nominata', ['ManagerController', 'nominata']);
+$router->post('/manager/nominata/salvar', ['ManagerController', 'salvarNominata']);
+// imprimir is handled earlier, before the {id} route
+$router->get('/manager/financeiro', ['ManagerController', 'financeiro']);
+
+// SuperAdmin view of Nominata is handled in AdminController::membros

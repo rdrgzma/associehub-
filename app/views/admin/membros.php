@@ -12,7 +12,78 @@
         <span class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-semibold border border-indigo-200">
             Total na Lista: <?= count($membros) ?>
         </span>
+        <a href="/admin/associacoes/<?= $associacao['id'] ?>/nominata" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm px-4 py-1.5 rounded-lg shadow-sm transition flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+            Gerenciar Nominata
+        </a>
+        <button onclick="openPrintOptions('/admin/associacoes/<?= $associacao['id'] ?>/imprimir')" class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-bold text-sm px-4 py-1.5 rounded-lg shadow-sm transition flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            Imprimir Lista
+        </button>
+        <?php $baseUrl = str_replace('/public/index.php', '', $_SERVER['SCRIPT_NAME']); ?>
         <a href="/admin/associacoes" class="text-gray-600 hover:text-gray-900 font-medium text-sm border border-gray-300 px-3 py-1.5 rounded-lg">&larr; Voltar</a>
+    </div>
+</div>
+
+<!-- Print Options Modal -->
+<div id="printModal" class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border border-gray-100">
+        <div class="px-6 py-4 bg-indigo-600 text-white flex items-center space-x-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            <h3 class="font-bold text-lg">Imprimir Lista</h3>
+        </div>
+        <div class="p-6">
+            <p class="text-sm text-gray-600 mb-5">Deseja incluir o resumo da <strong>Nominata (Diretoria)</strong> no topo da lista impressa?</p>
+            <div class="flex flex-col space-y-2">
+                <button onclick="doPrint(true)" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl transition text-sm">
+                    ✅ Sim, incluir Nominata
+                </button>
+                <button onclick="doPrint(false)" class="w-full bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-bold py-2.5 px-4 rounded-xl transition text-sm">
+                    Não, apenas a lista de membros
+                </button>
+                <button onclick="closePrintModal()" class="w-full text-gray-400 hover:text-gray-600 font-medium py-2 text-xs transition">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    let _printUrl = '';
+    function openPrintOptions(relativeUrl) {
+        const baseUrl = '<?= $baseUrl ?>';
+        _printUrl = baseUrl + relativeUrl;
+        document.getElementById('printModal').classList.remove('hidden');
+    }
+    function doPrint(withNominata) {
+        const url = _printUrl + (withNominata ? '?nominata=1' : '?nominata=0');
+        window.open(url, '_blank');
+        closePrintModal();
+    }
+    function closePrintModal() {
+        document.getElementById('printModal').classList.add('hidden');
+    }
+</script>
+
+<!-- Nominata Section for SuperAdmin -->
+<div class="mb-8 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="p-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+        <h3 class="text-sm font-bold text-gray-800 flex items-center space-x-2">
+            <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <span>Nominata da Associação (Diretoria)</span>
+        </h3>
+    </div>
+    <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <?php foreach($nominata as $pos): ?>
+                <div class="p-3 bg-gray-50 rounded-lg border border-gray-100 shadow-sm">
+                    <div class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-1"><?= htmlspecialchars($pos['cargo']) ?></div>
+                    <div class="text-sm font-bold text-gray-800">
+                        <?= $pos['associado_nome'] ? htmlspecialchars($pos['associado_nome']) : '<span class="text-gray-300 font-normal italic">Não atribuído</span>' ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
     </div>
 </div>
 
@@ -37,6 +108,38 @@
     </div>
 </dl>
 
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-8">
+    <form action="/admin/associacoes/<?= $associacao['id'] ?>/membros" method="GET" class="flex flex-col md:flex-row gap-4">
+        <div class="flex-1">
+            <label for="search" class="block text-xs font-medium text-gray-500 mb-1">Pesquisar Membro</label>
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </span>
+                <input type="text" name="search" id="search" value="<?= htmlspecialchars($filters['search'] ?? '') ?>" placeholder="Nome, CPF, Tel ou Email..." class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+        </div>
+        <div class="w-full md:w-48">
+            <label for="situacao" class="block text-xs font-medium text-gray-500 mb-1">Situação (Presença)</label>
+            <select name="situacao" id="situacao" class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                <option value="">Todas</option>
+                <option value="1" <?= (string)($filters['situacao'] ?? '') === '1' ? 'selected' : '' ?>>Ativo</option>
+                <option value="0" <?= (string)($filters['situacao'] ?? '') === '0' ? 'selected' : '' ?>>Inativo/Pendente</option>
+            </select>
+        </div>
+        <div class="flex items-end gap-2">
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg text-sm transition shadow-sm">
+                Filtrar
+            </button>
+            <?php if (!empty($filters['search']) || isset($filters['situacao'])): ?>
+                <a href="/admin/associacoes/<?= $associacao['id'] ?>/membros" class="bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2 px-4 rounded-lg text-sm transition">
+                    Limpar
+                </a>
+            <?php endif; ?>
+        </div>
+    </form>
+</div>
+
 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
     <?php if(empty($membros)): ?>
         <div class="p-8 text-center text-gray-500">
@@ -51,6 +154,7 @@
                         <th class="py-3 px-6 font-medium">Nome</th>
                         <th class="py-3 px-6 font-medium">Contato</th>
                         <th class="py-3 px-6 font-medium">Endereço</th>
+                        <th class="py-3 px-6 font-medium">Cargo/Função</th>
                         <th class="py-3 px-6 font-medium">Registro</th>
                         <th class="py-3 px-6 font-medium text-right">Ações</th>
                     </tr>
@@ -73,6 +177,15 @@
                             <div class="text-xs text-gray-500">
                                 <?= htmlspecialchars($membro['cidade']) ?> - <?= htmlspecialchars($membro['estado']) ?>
                             </div>
+                        </td>
+                        <td class="py-3 px-6 text-gray-600">
+                            <?php if(!empty($membro['cargo_nominata'])): ?>
+                                <span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-md text-[10px] font-bold border border-indigo-100 uppercase tracking-tighter">
+                                    <?= htmlspecialchars($membro['cargo_nominata']) ?>
+                                </span>
+                            <?php else: ?>
+                                <span class="text-gray-300 italic text-[11px]">Membro</span>
+                            <?php endif; ?>
                         </td>
                         <td class="py-3 px-6 text-gray-500 font-medium">
                             <div><?= date('d/m/Y', strtotime($membro['created_at'])) ?></div>
